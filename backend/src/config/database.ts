@@ -41,8 +41,27 @@ interface DatabaseSchema {
 }
 
 const isVercel = Boolean(process.env.VERCEL);
-const DATA_DIR = isVercel ? path.join('/tmp', 'data') : path.resolve(process.cwd(), 'data');
-const DB_FILE = path.join(DATA_DIR, 'database.json');
+
+const findExistingDbSource = (): string | null => {
+  const dirCandidates = [
+    typeof __dirname !== 'undefined' ? path.resolve(__dirname, '..', '..', 'data', 'database.json') : '',
+    typeof __dirname !== 'undefined' ? path.resolve(__dirname, '..', 'data', 'database.json') : '',
+    path.resolve(process.cwd(), 'backend', 'data', 'database.json'),
+    path.resolve(process.cwd(), 'data', 'database.json'),
+  ].filter(Boolean);
+
+  for (const cand of dirCandidates) {
+    if (fs.existsSync(cand)) {
+      return cand;
+    }
+  }
+  return null;
+};
+
+const DATA_DIR = isVercel
+  ? path.join('/tmp', 'data')
+  : (findExistingDbSource() ? path.dirname(findExistingDbSource()!) : path.resolve(process.cwd(), 'backend', 'data'));
+const DB_FILE = isVercel ? path.join('/tmp', 'data', 'database.json') : path.join(DATA_DIR, 'database.json');
 
 class DatabaseStore {
   private data: DatabaseSchema = {
@@ -90,25 +109,22 @@ class DatabaseStore {
 
     // In Vercel serverless, copy initial seed database to writable /tmp directory
     if (isVercel && !fs.existsSync(DB_FILE)) {
-      const candidates = [
-        path.resolve(process.cwd(), 'data', 'database.json'),
-        path.resolve(process.cwd(), 'backend', 'data', 'database.json'),
-      ];
-      for (const cand of candidates) {
-        if (fs.existsSync(cand)) {
-          try {
-            fs.copyFileSync(cand, DB_FILE);
-            break;
-          } catch (e) {
-            console.warn('[Database] Seed copy to /tmp error:', e);
-          }
+      const sourceFile = findExistingDbSource();
+      if (sourceFile) {
+        try {
+          fs.copyFileSync(sourceFile, DB_FILE);
+          console.log(`[Database] Initialized /tmp database from source: ${sourceFile}`);
+        } catch (e) {
+          console.warn('[Database] Seed copy to /tmp error:', e);
         }
       }
     }
 
-    if (fs.existsSync(DB_FILE)) {
+    const fileToRead = fs.existsSync(DB_FILE) ? DB_FILE : findExistingDbSource();
+
+    if (fileToRead && fs.existsSync(fileToRead)) {
       try {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
+        const raw = fs.readFileSync(fileToRead, 'utf-8');
         this.data = JSON.parse(raw);
         if (!this.data.activity_logs) this.data.activity_logs = [];
         if (!this.data.assignments) this.data.assignments = [];
@@ -165,6 +181,9 @@ class DatabaseStore {
           this.save();
         }
         console.log('[Database] Loaded existing database from data/database.json');
+        setTimeout(() => {
+          this.syncWithSupabase().catch(() => {});
+        }, 100);
         return;
       } catch (err) {
         console.error('[Database] Failed to read database.json, re-seeding...', err);
@@ -173,6 +192,68 @@ class DatabaseStore {
 
     this.seed();
     this.save();
+    setTimeout(() => {
+      this.syncWithSupabase().catch(() => {});
+    }, 100);
+  }
+
+  public async syncWithSupabase(): Promise<void> {
+    const supabase = (await import('./supabase.js')).getSupabase();
+    if (!supabase) return;
+    try {
+      const [uRes, spRes, cRes, topRes, vRes, attRes, asRes] = await Promise.all([
+        supabase.from('users').select('*'),
+        supabase.from('student_profiles').select('*'),
+        supabase.from('courses').select('*'),
+        supabase.from('topics').select('*'),
+        supabase.from('videos').select('*'),
+        supabase.from('attendance').select('*'),
+        supabase.from('assignments').select('*'),
+      ]);
+
+      if (uRes.data && uRes.data.length > 0) {
+        const existingIds = new Set(this.data.users.map((u: User) => u.id));
+        for (const u of uRes.data) {
+          if (!existingIds.has(u.id)) {
+            this.data.users.push(u as User);
+          } else {
+            const idx = this.data.users.findIndex((item: User) => item.id === u.id);
+            if (idx !== -1) this.data.users[idx] = u as User;
+          }
+        }
+      }
+
+      if (spRes.data && spRes.data.length > 0) {
+        const existingIds = new Set(this.data.student_profiles.map((p: StudentProfile) => p.id));
+        for (const p of spRes.data) {
+          if (!existingIds.has(p.id)) {
+            this.data.student_profiles.push(p as StudentProfile);
+          } else {
+            const idx = this.data.student_profiles.findIndex((item: StudentProfile) => item.id === p.id);
+            if (idx !== -1) this.data.student_profiles[idx] = p as StudentProfile;
+          }
+        }
+      }
+
+      if (cRes.data && cRes.data.length > 0) {
+        this.data.courses = cRes.data as Course[];
+      }
+      if (topRes.data && topRes.data.length > 0) {
+        this.data.topics = topRes.data as Topic[];
+      }
+      if (vRes.data && vRes.data.length > 0) {
+        this.data.videos = vRes.data as Video[];
+      }
+      if (attRes.data && attRes.data.length > 0) {
+        this.data.attendance = attRes.data as Attendance[];
+      }
+      if (asRes.data && asRes.data.length > 0) {
+        this.data.assignments = asRes.data as Assignment[];
+      }
+      console.log(`[DatabaseStore] Synced with Supabase: ${this.data.users.length} users, ${this.data.courses.length} courses.`);
+    } catch (err: any) {
+      // Non-blocking notice
+    }
   }
 
   private saveTimeout: NodeJS.Timeout | null = null;

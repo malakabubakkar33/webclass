@@ -140,36 +140,6 @@
       "is_active": true,
       "created_at": "2026-10-02T14:52:47.170Z",
       "updated_at": "2026-10-02T14:52:47.170Z"
-    },
-    {
-      "id": "c6e27221-58ca-48b1-b85e-548f7f01d3cf",
-      "role": "student",
-      "username": "hamzatariq_7590",
-      "email": "hamza_7590@student.webcraft.edu",
-      "password_hash": "$2a$10$mZ7aAhHWj29WiYQHojCfk.pF10yyc0TsZvTa8S0uZPTiVbonjF8J6",
-      "is_active": true,
-      "created_at": "2026-10-03T11:34:17.840Z",
-      "updated_at": "2026-10-03T11:34:17.840Z"
-    },
-    {
-      "id": "964689ae-e344-4e21-ac01-22d25d6ccdca",
-      "role": "student",
-      "username": "hamzatariq_5154",
-      "email": "hamza_5154@student.webcraft.edu",
-      "password_hash": "$2a$10$SwtC6DmN0r/FEtbsXYexHuv/6q9K8KUJxVr/NYYjpSDOpGinwv5/6",
-      "is_active": true,
-      "created_at": "2026-10-03T11:34:35.421Z",
-      "updated_at": "2026-10-03T11:34:35.421Z"
-    },
-    {
-      "id": "c3af38eb-58bc-4a70-9c51-c4cd7d62c0c1",
-      "role": "student",
-      "username": "hamzatariq_6192",
-      "email": "hamza_6192@student.webcraft.edu",
-      "password_hash": "$2a$10$ulJ97OhegMfga4Glg3lxQOw8NmPms0hAzcRppyoM6KTjZIdtWWkPS",
-      "is_active": true,
-      "created_at": "2026-10-03T11:34:46.413Z",
-      "updated_at": "2026-10-03T11:34:46.413Z"
     }
   ],
   "student_profiles": [
@@ -337,45 +307,6 @@
       "show_on_public_directory": true,
       "created_at": "2026-10-02T14:52:47.170Z",
       "updated_at": "2026-10-02T14:52:47.170Z"
-    },
-    {
-      "id": "5fe72481-574b-4c94-84f0-7d597cc8d2e2",
-      "user_id": "c6e27221-58ca-48b1-b85e-548f7f01d3cf",
-      "full_name": "Hamza Tariq",
-      "username": "hamzatariq_7590",
-      "email": "hamza_7590@student.webcraft.edu",
-      "mobile_number": "+92 312 9876543",
-      "roll_number": "WD-2026-243",
-      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Hamza%20Tariq",
-      "show_on_public_directory": true,
-      "created_at": "2026-10-03T11:34:17.840Z",
-      "updated_at": "2026-10-03T11:34:17.840Z"
-    },
-    {
-      "id": "e8eb2726-a650-411e-b2e7-d9b00fffb538",
-      "user_id": "964689ae-e344-4e21-ac01-22d25d6ccdca",
-      "full_name": "Hamza Tariq",
-      "username": "hamzatariq_5154",
-      "email": "hamza_5154@student.webcraft.edu",
-      "mobile_number": "+92 312 9876543",
-      "roll_number": "WD-2026-537",
-      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Hamza%20Tariq",
-      "show_on_public_directory": true,
-      "created_at": "2026-10-03T11:34:35.421Z",
-      "updated_at": "2026-10-03T11:34:35.421Z"
-    },
-    {
-      "id": "d63a754e-6310-42ef-8dfe-994b8813017c",
-      "user_id": "c3af38eb-58bc-4a70-9c51-c4cd7d62c0c1",
-      "full_name": "Hamza Tariq",
-      "username": "hamzatariq_6192",
-      "email": "hamza_6192@student.webcraft.edu",
-      "mobile_number": "+92 312 9876543",
-      "roll_number": "WD-2026-168",
-      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Hamza%20Tariq",
-      "show_on_public_directory": true,
-      "created_at": "2026-10-03T11:34:46.413Z",
-      "updated_at": "2026-10-03T11:34:46.413Z"
     }
   ],
   "teacher_profiles": [
@@ -489,42 +420,6 @@
       "is_published": true,
       "created_at": "2026-09-30T10:58:01.427Z",
       "updated_at": "2026-09-30T10:58:01.427Z"
-    },
-    {
-      "id": "course-advanced-next-js-app-router-masterclass-9034",
-      "title": "Advanced Next.js App Router Masterclass",
-      "slug": "advanced-next-js-app-router-masterclass",
-      "description": "Master server components, server actions, parallel routes, and metadata.",
-      "level": "Advanced",
-      "thumbnail_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600",
-      "created_by": "teacher-admin-uuid-001",
-      "is_published": true,
-      "created_at": "2026-10-03T11:34:19.034Z",
-      "updated_at": "2026-10-03T11:34:19.034Z"
-    },
-    {
-      "id": "course-advanced-next-js-app-router-masterclass-6227",
-      "title": "Advanced Next.js App Router Masterclass",
-      "slug": "advanced-next-js-app-router-masterclass",
-      "description": "Master server components, server actions, parallel routes, and metadata.",
-      "level": "Advanced",
-      "thumbnail_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600",
-      "created_by": "teacher-admin-uuid-001",
-      "is_published": true,
-      "created_at": "2026-10-03T11:34:36.227Z",
-      "updated_at": "2026-10-03T11:34:36.227Z"
-    },
-    {
-      "id": "course-advanced-next-js-app-router-masterclass-7041",
-      "title": "Advanced Next.js App Router Masterclass",
-      "slug": "advanced-next-js-app-router-masterclass",
-      "description": "Master server components, server actions, parallel routes, and metadata.",
-      "level": "Advanced",
-      "thumbnail_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600",
-      "created_by": "teacher-admin-uuid-001",
-      "is_published": true,
-      "created_at": "2026-10-03T11:34:47.041Z",
-      "updated_at": "2026-10-03T11:34:47.041Z"
     }
   ],
   "topics": [
@@ -1752,36 +1647,6 @@
       "marked_by": "teacher-admin-uuid-001",
       "created_at": "2026-10-01T16:37:51.348Z",
       "updated_at": "2026-10-01T16:37:51.348Z"
-    },
-    {
-      "id": "a991c017-85a4-4e82-99e3-03d81f08b921",
-      "student_id": "c6e27221-58ca-48b1-b85e-548f7f01d3cf",
-      "date": "2026-10-05",
-      "class_day": "monday",
-      "status": "present",
-      "marked_by": "teacher-admin-uuid-001",
-      "created_at": "2026-10-03T11:34:19.014Z",
-      "updated_at": "2026-10-03T11:34:19.014Z"
-    },
-    {
-      "id": "8b92ec6e-8cd0-4293-b6ae-49e1ad3e34bd",
-      "student_id": "964689ae-e344-4e21-ac01-22d25d6ccdca",
-      "date": "2026-10-05",
-      "class_day": "monday",
-      "status": "present",
-      "marked_by": "teacher-admin-uuid-001",
-      "created_at": "2026-10-03T11:34:36.220Z",
-      "updated_at": "2026-10-03T11:34:36.220Z"
-    },
-    {
-      "id": "1605246a-8045-453f-93c7-8321eecb661a",
-      "student_id": "c3af38eb-58bc-4a70-9c51-c4cd7d62c0c1",
-      "date": "2026-10-05",
-      "class_day": "monday",
-      "status": "present",
-      "marked_by": "teacher-admin-uuid-001",
-      "created_at": "2026-10-03T11:34:47.035Z",
-      "updated_at": "2026-10-03T11:34:47.035Z"
     }
   ],
   "video_progress": [
@@ -2001,72 +1866,6 @@
     }
   ],
   "notifications": [
-    {
-      "id": "ff581f29-cbd2-40cf-a481-7a50de0a7d5b",
-      "user_id": "c3af38eb-58bc-4a70-9c51-c4cd7d62c0c1",
-      "type": "attendance_marked",
-      "title": "Attendance Updated",
-      "message": "Your attendance for MONDAY, 2026-10-05 (4:00 PM - 6:00 PM) has been marked as Present.",
-      "reference_type": "attendance",
-      "reference_id": "2026-10-05",
-      "is_read": false,
-      "created_at": "2026-10-03T11:34:47.035Z"
-    },
-    {
-      "id": "b78d7f58-226a-49b7-b06e-0893b5fd9b14",
-      "user_id": "c3af38eb-58bc-4a70-9c51-c4cd7d62c0c1",
-      "type": "system",
-      "title": "Welcome to SMIT Web Class!",
-      "message": "Hello Hamza Tariq, your student account is active. Start exploring your courses today!",
-      "reference_type": "course",
-      "reference_id": "course-html",
-      "is_read": false,
-      "created_at": "2026-10-03T11:34:46.413Z"
-    },
-    {
-      "id": "6f63100a-ae65-4047-9aa3-1eaf8ecd4242",
-      "user_id": "964689ae-e344-4e21-ac01-22d25d6ccdca",
-      "type": "attendance_marked",
-      "title": "Attendance Updated",
-      "message": "Your attendance for MONDAY, 2026-10-05 (4:00 PM - 6:00 PM) has been marked as Present.",
-      "reference_type": "attendance",
-      "reference_id": "2026-10-05",
-      "is_read": false,
-      "created_at": "2026-10-03T11:34:36.220Z"
-    },
-    {
-      "id": "41166aa1-e457-4f0e-8245-646b5098d70a",
-      "user_id": "964689ae-e344-4e21-ac01-22d25d6ccdca",
-      "type": "system",
-      "title": "Welcome to SMIT Web Class!",
-      "message": "Hello Hamza Tariq, your student account is active. Start exploring your courses today!",
-      "reference_type": "course",
-      "reference_id": "course-html",
-      "is_read": false,
-      "created_at": "2026-10-03T11:34:35.421Z"
-    },
-    {
-      "id": "75f7bda0-5101-4013-b4f2-f8bea7c0ba88",
-      "user_id": "c6e27221-58ca-48b1-b85e-548f7f01d3cf",
-      "type": "attendance_marked",
-      "title": "Attendance Updated",
-      "message": "Your attendance for MONDAY, 2026-10-05 (4:00 PM - 6:00 PM) has been marked as Present.",
-      "reference_type": "attendance",
-      "reference_id": "2026-10-05",
-      "is_read": false,
-      "created_at": "2026-10-03T11:34:19.014Z"
-    },
-    {
-      "id": "b168449b-ac7f-4c07-a20f-7c9f8e0466cf",
-      "user_id": "c6e27221-58ca-48b1-b85e-548f7f01d3cf",
-      "type": "system",
-      "title": "Welcome to SMIT Web Class!",
-      "message": "Hello Hamza Tariq, your student account is active. Start exploring your courses today!",
-      "reference_type": "course",
-      "reference_id": "course-html",
-      "is_read": false,
-      "created_at": "2026-10-03T11:34:17.841Z"
-    },
     {
       "id": "08a7d9db-e37c-494d-a6d9-0d61fac9eeff",
       "user_id": "a7e9b33f-2fd6-4fa5-960d-8f2427c5c8a6",
@@ -3186,96 +2985,6 @@
     }
   ],
   "activity_logs": [
-    {
-      "id": "3d5150fe-225c-4b5e-8005-90c4d14b3a84",
-      "actor_user_id": "teacher-admin-uuid-001",
-      "event_type": "COURSE_CREATED",
-      "title": "New Course Created",
-      "description": "Created new course \"Advanced Next.js App Router Masterclass\".",
-      "reference_type": "course",
-      "reference_id": "course-advanced-next-js-app-router-masterclass-7041",
-      "created_at": "2026-10-03T11:34:47.041Z"
-    },
-    {
-      "id": "eb98cf77-30eb-423d-b024-b127bb1e2fd5",
-      "actor_user_id": "teacher-admin-uuid-001",
-      "event_type": "ATTENDANCE_MARKED",
-      "title": "Class Attendance Recorded",
-      "description": "Recorded attendance for 1 students on 2026-10-05 (4:00 PM - 6:00 PM).",
-      "reference_type": "attendance",
-      "reference_id": "2026-10-05",
-      "created_at": "2026-10-03T11:34:47.036Z"
-    },
-    {
-      "id": "0a7eec63-baf3-4d7f-a160-d689d2f6e3a0",
-      "actor_user_id": "c3af38eb-58bc-4a70-9c51-c4cd7d62c0c1",
-      "event_type": "STUDENT_REGISTERED",
-      "title": "New Student Enrolled",
-      "description": "Hamza Tariq joined the class with roll WD-2026-168.",
-      "reference_type": "student",
-      "reference_id": "c3af38eb-58bc-4a70-9c51-c4cd7d62c0c1",
-      "created_at": "2026-10-03T11:34:46.413Z"
-    },
-    {
-      "id": "0cf4eec2-0261-4cdd-8849-375f083ec48c",
-      "actor_user_id": "teacher-admin-uuid-001",
-      "event_type": "COURSE_CREATED",
-      "title": "New Course Created",
-      "description": "Created new course \"Advanced Next.js App Router Masterclass\".",
-      "reference_type": "course",
-      "reference_id": "course-advanced-next-js-app-router-masterclass-6227",
-      "created_at": "2026-10-03T11:34:36.227Z"
-    },
-    {
-      "id": "f9446e4f-491c-4ce2-8426-701bb11b08f0",
-      "actor_user_id": "teacher-admin-uuid-001",
-      "event_type": "ATTENDANCE_MARKED",
-      "title": "Class Attendance Recorded",
-      "description": "Recorded attendance for 1 students on 2026-10-05 (4:00 PM - 6:00 PM).",
-      "reference_type": "attendance",
-      "reference_id": "2026-10-05",
-      "created_at": "2026-10-03T11:34:36.220Z"
-    },
-    {
-      "id": "8c51cbd4-5c8c-4303-8a9f-c64c470b7266",
-      "actor_user_id": "964689ae-e344-4e21-ac01-22d25d6ccdca",
-      "event_type": "STUDENT_REGISTERED",
-      "title": "New Student Enrolled",
-      "description": "Hamza Tariq joined the class with roll WD-2026-537.",
-      "reference_type": "student",
-      "reference_id": "964689ae-e344-4e21-ac01-22d25d6ccdca",
-      "created_at": "2026-10-03T11:34:35.422Z"
-    },
-    {
-      "id": "a1e0e851-bd55-4a97-ae2e-0a8621cb9245",
-      "actor_user_id": "teacher-admin-uuid-001",
-      "event_type": "COURSE_CREATED",
-      "title": "New Course Created",
-      "description": "Created new course \"Advanced Next.js App Router Masterclass\".",
-      "reference_type": "course",
-      "reference_id": "course-advanced-next-js-app-router-masterclass-9034",
-      "created_at": "2026-10-03T11:34:19.034Z"
-    },
-    {
-      "id": "dfd80426-0adc-4b3a-8e88-046d5f74acb3",
-      "actor_user_id": "teacher-admin-uuid-001",
-      "event_type": "ATTENDANCE_MARKED",
-      "title": "Class Attendance Recorded",
-      "description": "Recorded attendance for 1 students on 2026-10-05 (4:00 PM - 6:00 PM).",
-      "reference_type": "attendance",
-      "reference_id": "2026-10-05",
-      "created_at": "2026-10-03T11:34:19.015Z"
-    },
-    {
-      "id": "3bc6320f-b8db-4aeb-8b1f-7b6f1a03bac5",
-      "actor_user_id": "c6e27221-58ca-48b1-b85e-548f7f01d3cf",
-      "event_type": "STUDENT_REGISTERED",
-      "title": "New Student Enrolled",
-      "description": "Hamza Tariq joined the class with roll WD-2026-243.",
-      "reference_type": "student",
-      "reference_id": "c6e27221-58ca-48b1-b85e-548f7f01d3cf",
-      "created_at": "2026-10-03T11:34:17.841Z"
-    },
     {
       "id": "a07e2f2d-9845-47c7-94d4-ba9065cdb363",
       "actor_user_id": "197c5ff8-03ce-4236-a332-6c0e66006e41",

@@ -1,0 +1,288 @@
+====================================================================================================
+               SMIT WEBCRAFT LMS - COMPLETE APPLICATION FEATURES & TECH STACK SPECIFICATION
+====================================================================================================
+Project Name: SMIT Web Development Classroom Learning Platform (WebCraft LMS)
+Architecture: Unified Monorepo Full-Stack Application (Frontend + Backend + Serverless API)
+Target Deployment: Vercel Single-Project Deployment & Standalone Local Development
+Document Created: 2026-10-03
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+1. LANGUAGES & TECHNOLOGIES USED (YE APP KES KES LANGUAGE SE BANA HAI)
+----------------------------------------------------------------------------------------------------
+
+A. PROGRAMMING & SCRIPTING LANGUAGES:
+   * TypeScript (Strict typed JavaScript for both Frontend and Backend)
+   * JavaScript (ES2022+ / Node.js ESM & CommonJS)
+   * HTML5 (Semantic document markup, accessible forms, video player)
+   * CSS3 (Modern styling, CSS custom variables, Flexbox, CSS Grid)
+   * SQL (PostgreSQL relational schema, RLS policies, tables, constraints)
+
+B. FRONTEND TECH STACK & LIBRARIES:
+   * React (Component-driven UI architecture, custom hooks, reactive state)
+   * Vite (Next-generation high-speed frontend bundler & dev server)
+   * Tailwind CSS (Utility-first responsive design framework)
+   * TypeScript (Strict compile-time type safety across all components)
+   * Framer Motion (Fluid micro-interactions, page transition animations, modals)
+   * Lucide React (Comprehensive SVG icon system)
+   * TanStack Query / React Query (Server-state caching, background data revalidation)
+   * React Router (Client-side Single Page Application routing, protected route guards)
+   * React Hook Form (High-performance form state management)
+   * Zod (Schema validation for forms, passwords, user inputs)
+   * Recharts (Interactive SVG charts: attendance trends, completion analytics)
+   * Axios (HTTP client with JWT interceptors, auto-logout on 401, error handling)
+
+C. BACKEND TECH STACK & LIBRARIES:
+   * Node.js (High-performance JavaScript/TypeScript runtime)
+   * Express.js (REST API framework, routing, middleware pipeline)
+   * TypeScript (Server-side models, controllers, services, interfaces)
+   * Supabase Client (@supabase/supabase-js) (Cloud PostgreSQL & cloud storage integration)
+   * JSON Engine (Fast local persistent database engine in data/database.json)
+   * JSONWebToken (JWT) (Secure signed token generation & stateless authentication)
+   * bcryptjs (Cryptographic password hashing with 10 salt rounds)
+   * Multer (Multipart/form-data upload handling for avatars, videos, assignments)
+   * Helmet (HTTP security headers: CSP, cross-origin policies)
+   * CORS (Cross-Origin Resource Sharing configuration)
+   * Express Rate Limit (DDoS protection, brute-force mitigation on auth endpoints)
+   * Resend API / Nodemailer (Transactional email system: OTP reset, notification emails)
+   * Firebase Admin SDK (Firebase Cloud Messaging - FCM push notifications)
+   * UUID (v4 universally unique identifiers for database records)
+
+D. DEVOPS, DEPLOYMENT & TOOLING:
+   * Vercel Serverless Functions (@vercel/node lambda execution for backend)
+   * Vercel Static Hosting (Global CDN delivery for Vite frontend assets)
+   * Git & GitHub (Version control and monorepo code tracking)
+   * npm (Package management and unified build scripts)
+
+
+====================================================================================================
+2. DETAILED APPLICATION FEATURES (ES APPLICATION KE TAMAM FEATURES)
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+FEATURE MODULE 1: PUBLIC PORTAL (GUEST / VISITORS)
+----------------------------------------------------------------------------------------------------
+1. Modern Landing Page:
+   - Eye-catching hero section with live cohort badges and call-to-actions.
+   - Real-time statistics counters (Total Students, Total Courses, Total Topics, Total Videos).
+   - "Why Choose Us" feature highlights (Live classes, practical projects, mentorship).
+   - Instructor spotlight profile card with bio and credentials.
+   - Interactive FAQ accordion section and student testimonials.
+
+2. Public Courses Catalog:
+   - Full list of all 7+ web development courses:
+     1. HTML5 Semantic Web Architecture
+     2. Modern CSS3 & Responsive Design
+     3. JavaScript Deep Dive & DOM Engineering
+     4. TypeScript for Production Web Apps
+     5. React Enterprise Component Architecture
+     6. Firebase Cloud Mastery & Push Notifications
+     7. Supabase & PostgreSQL Architecture
+   - Filter courses by difficulty level (Beginner, Intermediate, Advanced).
+   - Real-time instant search by title, keyword, or technology slug.
+
+3. Public Course Details Page:
+   - Course overview, syllabus breakdown, prerequisites, and learning outcomes.
+   - Topic folder listing with lecture counts and lesson duration previews.
+
+4. Public Students Directory:
+   - Showcase of enrolled web development students.
+   - Student profile cards showing name, roll number, avatar, and skills.
+   - Only students who enable "Show on Public Directory" in settings are displayed.
+
+5. About & Curriculum Page:
+   - Information about the SMIT Web Development batch.
+   - Class timetable (Monday & Thursday, 6:00 PM - 8:30 PM).
+   - Location, instructor details, and cohort roadmap.
+
+
+----------------------------------------------------------------------------------------------------
+FEATURE MODULE 2: AUTHENTICATION & SECURITY SYSTEM
+----------------------------------------------------------------------------------------------------
+1. Unified Smart Login:
+   - Single clean login screen for both Teachers and Students.
+   - Auto-detects user role based on input:
+     * Teacher logs in via Username ("teacher" / "sirtatheer") or Email.
+     * Student logs in via Username, Roll Number (e.g. "WD-2026-001"), or Email.
+   - Secure bcrypt password comparison.
+   - Generates JWT token with 7-day expiration.
+   - Auto-remembers session in localStorage.
+
+2. Student 3-Step Signup Wizard:
+   - Step 1 (Personal Info): Full Name, Username, Roll Number, Mobile Number, Email.
+   - Step 2 (Avatar Selection): Preset avatar gallery or custom photo upload with live preview.
+   - Step 3 (Security): Password creation with Zod strength validation.
+   - Duplicate prevention (checks uniqueness of username, roll number, and email).
+   - Auto-login upon successful registration directly into the Student Dashboard.
+
+3. Password Recovery & OTP System:
+   - "Forgot Password" request screen.
+   - Sends real 6-digit verification OTP to the user's email via Resend API.
+   - Secure OTP verification window with expiry timer.
+   - Reset password form with confirmation check.
+
+4. Role-Based Route Guards (RBAC):
+   - Protected Route wrapper preventing unauthorized access.
+   - Teacher-only routes protected against student access (redirects to Unauthorized page).
+   - Student-only routes protected against unauthenticated guests (redirects to Login).
+   - Automatic token validation and 401 interceptor that clears session and redirects cleanly.
+
+5. Teacher First-Time Setup Flow:
+   - Onboarding screen if teacher account has not yet configured profile or credentials.
+
+
+----------------------------------------------------------------------------------------------------
+FEATURE MODULE 3: STUDENT PORTAL (LEARNER EXPERIENCE)
+----------------------------------------------------------------------------------------------------
+1. Student Dashboard:
+   - Welcome greeting with student name and roll number.
+   - Overall progress metrics: Enrolled courses, completed lessons, attendance rate.
+   - "Continue Learning" active resume card: Takes student directly to the last unwatched video.
+   - Quick attendance status card showing current attendance percentage and upcoming class day.
+   - Recent activity feed showing new lessons uploaded, attendance marked, and assignments graded.
+
+2. Student Courses & Roadmap:
+   - View enrolled web development courses with visual progress bars (0% to 100%).
+   - Course detail view with expandable topic folders.
+   - Sequential lesson status indicators: Completed (Green check), In-Progress, Locked/Upcoming.
+
+3. Interactive Video Lesson Player:
+   - Custom HTML5 responsive video player with controls.
+   - Lesson overview, description, and instructor notes.
+   - "Mark as Completed" button: Saves progress to the database and recalculates course completion.
+   - Dynamic course syllabus sidebar: Click any lesson to switch videos without reloading the page.
+
+4. Student Attendance Calendar:
+   - Full visual attendance calendar strictly configured for Monday & Thursday class days.
+   - Attendance status pills: Present (Green), Absent (Red), Leave (Yellow), Upcoming (Gray).
+   - Summary statistics: Total Classes, Classes Attended, Attendance Percentage, Attendance Status.
+   - Real-time alert if attendance falls below the required threshold (e.g. 75%).
+
+5. Real-Time Live Attendance Session Acceptor:
+   - When the teacher starts a live session, a pulsing banner appears on the student's dashboard.
+   - Student clicks "I Am Present / Accept Attendance" to request attendance confirmation.
+   - Instantly notifies teacher for one-click approval.
+
+6. Student Assignments System:
+   - List of active, upcoming, and submitted assignments.
+   - Detailed assignment view: Due date countdown, maximum marks, detailed instructions.
+   - Multi-file submission uploader (Supports PDF, PNG, JPG, JPEG, WEBP up to 30MB).
+   - Submission status: Submitted, Under Review, Graded.
+   - View grade marks (e.g. 95/100) and instructor written feedback.
+   - Resubmission support (if enabled by teacher).
+
+7. Student In-App Notifications:
+   - Notification bell with unread badge counter.
+   - Instant alerts for:
+     * New video lessons uploaded by instructor.
+     * Attendance marked for a session.
+     * Assignment grades and feedback posted.
+     * Warning or announcement messages.
+   - Mark single notification as read or "Mark All as Read".
+
+8. Student Profile & Settings:
+   - View and update personal profile: Full name, username, mobile, bio, avatar.
+   - Privacy toggle: "Show on Public Students Directory" (Enable/Disable).
+   - Change password form with current password verification.
+   - Firebase push notification subscription toggle.
+
+9. Dropped Student Protection Screen:
+   - If a teacher drops a student for low attendance or misconduct:
+   - Account is locked from accessing regular learning portals.
+   - Displays dedicated "Student Dropped" status page with the teacher's exact reason.
+
+
+----------------------------------------------------------------------------------------------------
+FEATURE MODULE 4: TEACHER / INSTRUCTOR PORTAL (ADMINISTRATION)
+----------------------------------------------------------------------------------------------------
+1. Teacher Analytics Dashboard:
+   - High-level KPIs: Total Students, Total Courses, Total Topics, Total Videos, Avg Attendance.
+   - Quick action shortcuts: "Upload Video", "Mark Attendance", "Add Course", "Create Assignment".
+   - Real-time audit log / Activity Stream (logs every course edit, attendance mark, video upload).
+
+2. Course & Curriculum Management:
+   - Create new courses with title, slug, description, thumbnail URL, and difficulty level.
+   - Edit course metadata or delete course with confirmation modal.
+   - Toggle publish/draft status.
+
+3. Topic Folders & Video Uploads:
+   - Create hierarchical topic folders inside courses (e.g. "Topic 1: Semantic HTML").
+   - Multi-source video upload:
+     * Local video file upload via Multer (stored in Supabase Storage or local disk).
+     * External video stream URL (MP4, Cloud storage, Vimeo, YouTube embed).
+   - Set video duration, sequence order, and descriptive notes.
+   - Uploading automatically triggers notifications and emails to enrolled students.
+
+4. Student Roster Management:
+   - Searchable, filterable table of all registered students.
+   - Displays Roll Number, Full Name, Username, Mobile, Attendance %, and Account Status.
+   - "Toggle Status": Enable or disable a student's login access.
+   - "Drop Student": Remove a student from active cohort with a formal reason note.
+   - "Send Attendance Warning": Trigger instant email warning if attendance is below 75%.
+   - Edit student profile info directly from teacher admin panel.
+
+5. Attendance Controller & Live Session Manager:
+   - Monday & Thursday date selector with automated day verification.
+   - Live Session Launcher: Start a live session so students can accept attendance in real-time.
+   - Live approval queue: Approve individual requests or click "Approve All".
+   - Manual Attendance Sheet: Quick toggle Present / Absent / Leave for all students.
+   - "Mark All Present" and "Mark All Absent" one-click bulk actions.
+   - Historical attendance records viewer with date filter.
+
+6. Assignment Management & Grading Hub:
+   - Create assignments: Title, description, due date, max marks, allowed file types, max file size.
+   - Toggle "Allow Resubmission" and "Published" status.
+   - Assignment Submissions Table: See which students submitted, on-time vs late status.
+   - Grading Modal: Download/preview submitted student files, assign numeric score, write feedback.
+   - Automatically notifies the student upon grading.
+
+7. Class Performance Analytics:
+   - Interactive charts powered by Recharts:
+     * Attendance trend line graph over time.
+     * Course completion bar chart across student cohort.
+     * Assignment submission rate breakdown.
+
+8. Class Settings:
+   - Configure Class Name (e.g. "SMIT Web Development Cohort").
+   - Configure Class Schedule Days (Monday & Thursday).
+   - Configure Class Timings (Start time 6:00 PM, End time 8:30 PM).
+   - Set Timezone ("Asia/Karachi") and physical/virtual Location.
+
+9. Teacher Profile & Security:
+   - Update instructor name, email, mobile number, bio, and avatar.
+   - Change teacher account password.
+
+
+----------------------------------------------------------------------------------------------------
+FEATURE MODULE 5: BACKEND, STORAGE, NOTIFICATIONS & INTEGRATIONS
+----------------------------------------------------------------------------------------------------
+1. Dual Database Architecture:
+   - Primary Persistent Engine: Embedded local JSON store (data/database.json) with auto-deduplication.
+   - Serverless Persistence: Automatically seeds into /tmp/data/database.json on Vercel.
+   - Supabase PostgreSQL Schema: Complete schema.sql provided with relational tables, foreign keys,
+     and Row-Level Security (RLS) policies for scaling to managed PostgreSQL.
+
+2. 3-Tier Resilient Storage Service:
+   - Tier 1: Supabase Storage Buckets ("avatars", "course-thumbnails", "course-videos", "assignments").
+   - Tier 2: Local filesystem disk storage (/tmp/uploads on Vercel, uploads/ on local).
+   - Tier 3: Inline Base64 DataURI fallback (ensures file uploads NEVER fail even without cloud setup).
+
+3. Email Notification Engine:
+   - Integrated with Resend API for high-deliverability transactional emails.
+   - HTML-styled templates for:
+     * 6-digit Password Reset OTP emails.
+     * New lesson upload notifications.
+     * Attendance warning alerts sent to low-attendance students.
+
+4. Firebase Cloud Messaging (FCM):
+   - Firebase Admin SDK integrated for browser push notifications.
+   - Device registration endpoint (/api/notifications/fcm-token).
+
+5. Production Vercel Serverless Architecture:
+   - Express backend runs as a high-speed Serverless Function via api/index.js.
+   - Automatic path restoration via x-matched-path prevents 405 Method Not Allowed errors.
+   - Single unified domain deployment: Zero CORS issues, zero cross-origin cookie bugs.
+
+====================================================================================================
+                             END OF SPECIFICATION DOCUMENT
+====================================================================================================

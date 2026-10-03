@@ -1,43 +1,30 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "frontend": {
-      "root": "frontend",
-      "framework": "vite",
-      "outputDirectory": "dist"
-    },
-    "backend": {
-      "root": "backend",
-      "framework": "express",
-      "buildCommand": "npm run build",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "frontend",
-          "format": "url",
-          "env": "FRONTEND_URL"
-        }
-      ]
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "backend/data/**,data/**",
+      "maxDuration": 30
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": {
-        "service": "backend"
-      }
+      "destination": "/api/index"
     },
     {
       "source": "/api",
-      "destination": {
-        "service": "backend"
-      }
+      "destination": "/api/index"
     },
     {
-      "source": "/(.*)",
-      "destination": {
-        "service": "frontend"
-      }
+      "source": "/uploads/(.*)",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/((?!api|uploads).*)",
+      "destination": "/index.html"
     }
   ]
 }

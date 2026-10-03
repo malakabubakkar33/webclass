@@ -1,126 +1,237 @@
-// Comprehensive Automated API & Workflow Test
-const BASE = 'http://localhost:5000/api';
-const FRONTEND = 'http://localhost:5173';
+import http from 'http';
+import handler from '../api/index.js';
 
 async function runTests() {
-  console.log('🧪 Starting Full-Stack LMS Platform Verification...\n');
+  console.log('====================================================');
+  console.log('🚀 RUNNING END-TO-END FLOW VERIFICATION TESTS');
+  console.log('====================================================');
 
-  // 1. Health check
-  const healthRes = await fetch(`${BASE}/health`).then(r => r.json());
-  console.log('1. API Health Check:', healthRes.status === 'healthy' ? '✅ PASS' : '❌ FAIL');
+  const server = http.createServer(handler);
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const port = server.address().port;
+  const BASE = `http://127.0.0.1:${port}/api`;
 
-  // 2. Frontend HTML serve check
-  const feRes = await fetch(FRONTEND);
-  console.log('2. Frontend Dev Server Check (200 OK):', feRes.status === 200 ? '✅ PASS' : '❌ FAIL');
+  const results = {
+    signup: false,
+    duplicateCheck: false,
+    studentLoginUsername: false,
+    studentLoginRoll: false,
+    studentLoginEmail: false,
+    teacherLogin: false,
+    studentMe: false,
+    studentDashboard: false,
+    studentCourses: false,
+    studentAttendance: false,
+    teacherStats: false,
+    teacherStudentsList: false,
+    newStudentVisibleToTeacher: false,
+    teacherCourseCreate: false,
+    attendanceSave: false,
+  };
 
-  // 3. Teacher Login
-  const teacherLogin = await fetch(`${BASE}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ identifier: 'teacher', password: 'Password123!' })
-  }).then(r => r.json());
-  console.log('3. Teacher Login (username: teacher):', teacherLogin.success && teacherLogin.data.user.role === 'teacher' ? '✅ PASS' : '❌ FAIL');
-  const teacherToken = teacherLogin.data.token;
+  const testStudent = {
+    fullName: 'Hamza Tariq',
+    username: 'hamzatariq_' + Date.now().toString().slice(-4),
+    rollNumber: 'WD-2026-' + Math.floor(100 + Math.random() * 900),
+    mobileNumber: '+92 312 9876543',
+    email: `hamza_${Date.now().toString().slice(-4)}@student.webcraft.edu`,
+    password: 'Password123!',
+    confirmPassword: 'Password123!',
+  };
 
-  // 4. Student Login by Roll Number
-  const studentLogin = await fetch(`${BASE}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ identifier: 'WD-2026-001', password: 'Password123!' })
-  }).then(r => r.json());
-  console.log('4. Student Login by Roll Number (WD-2026-001):', studentLogin.success && studentLogin.data.user.role === 'student' ? '✅ PASS' : '❌ FAIL');
-  const studentToken = studentLogin.data.token;
+  console.log('\n--- 1. Testing Student Signup Flow ---');
+  console.log(`Registering: ${testStudent.fullName} (${testStudent.rollNumber})...`);
 
-  // 5. Student Courses List with Progress
-  const coursesRes = await fetch(`${BASE}/courses`, {
-    headers: { 'Authorization': `Bearer ${studentToken}` }
-  }).then(r => r.json());
-  console.log(`5. Student Courses List (${coursesRes.data.length} courses loaded):`, coursesRes.success && coursesRes.data.length >= 7 ? '✅ PASS' : '❌ FAIL');
-
-  // 6. Course Details & Topics
-  const courseDetails = await fetch(`${BASE}/courses/course-html`, {
-    headers: { 'Authorization': `Bearer ${studentToken}` }
-  }).then(r => r.json());
-  console.log(`6. Course Details (Topics: ${courseDetails.data.topics.length}, Lessons: ${courseDetails.data.totalVideos}):`, courseDetails.success ? '✅ PASS' : '❌ FAIL');
-
-  // 7. Video Lesson Player Context & Progress
-  const firstVideoId = courseDetails.data.topics[0].videos[0].id;
-  const videoDetails = await fetch(`${BASE}/videos/${firstVideoId}`, {
-    headers: { 'Authorization': `Bearer ${studentToken}` }
-  }).then(r => r.json());
-  console.log('7. Video Lesson Context (Navigation & Progress):', videoDetails.success && videoDetails.data.video.title ? '✅ PASS' : '❌ FAIL');
-
-  // 8. Student Marks Video as Completed
-  const progressRes = await fetch(`${BASE}/videos/${firstVideoId}/progress`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${studentToken}`
-    },
-    body: JSON.stringify({ completed: true, progressSeconds: 500 })
-  }).then(r => r.json());
-  console.log('8. Mark Lesson Completed:', progressRes.success && progressRes.data.completed === true ? '✅ PASS' : '❌ FAIL');
-
-  // 9. Student Attendance (Read-Only)
-  const attSummary = await fetch(`${BASE}/attendance/student/summary`, {
-    headers: { 'Authorization': `Bearer ${studentToken}` }
-  }).then(r => r.json());
-  console.log(`9. Student Attendance Records (${attSummary.data.records.length} sessions, ${attSummary.data.percentage}% attendance):`, attSummary.success ? '✅ PASS' : '❌ FAIL');
-
-  // 10. Teacher Dashboard Stats
-  const teacherStats = await fetch(`${BASE}/teacher/dashboard-stats`, {
-    headers: { 'Authorization': `Bearer ${teacherToken}` }
-  }).then(r => r.json());
-  console.log(`10. Teacher Dashboard Stats (Students: ${teacherStats.data.totalStudents}, Courses: ${teacherStats.data.totalCourses}, Videos: ${teacherStats.data.totalVideos}):`, teacherStats.success ? '✅ PASS' : '❌ FAIL');
-
-  // 11. Teacher Student Roster
-  const studentsList = await fetch(`${BASE}/students`, {
-    headers: { 'Authorization': `Bearer ${teacherToken}` }
-  }).then(r => r.json());
-  console.log(`11. Teacher Student Roster (${studentsList.data.length} enrolled students):`, studentsList.success && studentsList.data.length >= 3 ? '✅ PASS' : '❌ FAIL');
-
-  // 12. Teacher Marks Monday / Thursday Attendance
-  const attSaveRes = await fetch(`${BASE}/attendance/save`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${teacherToken}`
-    },
-    body: JSON.stringify({
-      date: '2026-10-01', // Thursday
-      records: [
-        { studentId: 'student-uuid-001', status: 'present' },
-        { studentId: 'student-uuid-002', status: 'present' },
-        { studentId: 'student-uuid-003', status: 'absent' },
-      ]
-    })
-  }).then(r => r.json());
-  console.log('12. Teacher Saves Bi-Weekly Attendance (Mon/Thu):', attSaveRes.success ? '✅ PASS' : '❌ FAIL');
-
-  // 13. Student Multi-Step Signup
-  const testStudentRoll = `WD-2026-99${Math.floor(Math.random() * 90 + 10)}`;
   const signupRes = await fetch(`${BASE}/auth/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(testStudent),
+  }).then(r => r.json());
+
+  console.log('Signup Response Success:', signupRes.success);
+  if (signupRes.success && signupRes.data?.token && signupRes.data?.user?.id) {
+    results.signup = true;
+    console.log(`✅ Signup verified: ID=${signupRes.data.user.id}, Token issued.`);
+  } else {
+    console.error('❌ Signup failed:', signupRes);
+  }
+
+  console.log('\n--- 2. Testing Duplicate Prevention ---');
+  const dupRes = await fetch(`${BASE}/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(testStudent),
+  }).then(r => r.json());
+
+  if (!dupRes.success && dupRes.message && dupRes.message.includes('already taken')) {
+    results.duplicateCheck = true;
+    console.log(`✅ Duplicate correctly rejected: "${dupRes.message}"`);
+  } else {
+    console.error('❌ Duplicate not rejected:', dupRes);
+  }
+
+  console.log('\n--- 3. Testing Student Login Variations ---');
+  // 3a. Username
+  const loginUserRes = await fetch(`${BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier: testStudent.username, password: testStudent.password }),
+  }).then(r => r.json());
+  if (loginUserRes.success && loginUserRes.data?.user?.role === 'student') {
+    results.studentLoginUsername = true;
+    console.log('✅ Student Login by Username: SUCCESS');
+  }
+
+  // 3b. Roll Number
+  const loginRollRes = await fetch(`${BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier: testStudent.rollNumber, password: testStudent.password }),
+  }).then(r => r.json());
+  if (loginRollRes.success && loginRollRes.data?.user?.rollNumber === testStudent.rollNumber) {
+    results.studentLoginRoll = true;
+    console.log('✅ Student Login by Roll Number: SUCCESS');
+  }
+
+  // 3c. Email
+  const loginEmailRes = await fetch(`${BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier: testStudent.email, password: testStudent.password }),
+  }).then(r => r.json());
+  if (loginEmailRes.success) {
+    results.studentLoginEmail = true;
+    console.log('✅ Student Login by Email: SUCCESS');
+  }
+
+  const studentToken = loginUserRes.data?.token;
+
+  console.log('\n--- 4. Testing Teacher Login ---');
+  const teacherLoginRes = await fetch(`${BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier: 'teacher', password: 'Password123!' }),
+  }).then(r => r.json());
+  if (teacherLoginRes.success && teacherLoginRes.data?.user?.role === 'teacher') {
+    results.teacherLogin = true;
+    console.log(`✅ Teacher Login: SUCCESS (${teacherLoginRes.data.user.fullName})`);
+  } else {
+    console.error('❌ Teacher Login Failed:', teacherLoginRes);
+  }
+
+  const teacherToken = teacherLoginRes.data?.token;
+
+  console.log('\n--- 5. Testing Student Portal Endpoints ---');
+  // /auth/me
+  const meRes = await fetch(`${BASE}/auth/me`, {
+    headers: { 'Authorization': `Bearer ${studentToken}` },
+  }).then(r => r.json());
+  if (meRes.success && meRes.data?.username === testStudent.username) {
+    results.studentMe = true;
+    console.log('✅ GET /api/auth/me (Student): SUCCESS');
+  }
+
+  // /students/dashboard
+  const dashRes = await fetch(`${BASE}/students/dashboard`, {
+    headers: { 'Authorization': `Bearer ${studentToken}` },
+  }).then(r => r.json());
+  if (dashRes.success && dashRes.data) {
+    results.studentDashboard = true;
+    console.log(`✅ GET /api/students/dashboard: SUCCESS (Enrolled Courses: ${dashRes.data.enrolledCourses?.length || 0})`);
+  }
+
+  // /courses
+  const coursesRes = await fetch(`${BASE}/courses`, {
+    headers: { 'Authorization': `Bearer ${studentToken}` },
+  }).then(r => r.json());
+  if (coursesRes.success && coursesRes.data?.length > 0) {
+    results.studentCourses = true;
+    console.log(`✅ GET /api/courses: SUCCESS (Found ${coursesRes.data.length} courses)`);
+  }
+
+  // /attendance/student/summary
+  const attRes = await fetch(`${BASE}/attendance/student/summary`, {
+    headers: { 'Authorization': `Bearer ${studentToken}` },
+  }).then(r => r.json());
+  if (attRes.success) {
+    results.studentAttendance = true;
+    console.log(`✅ GET /api/attendance/student/summary: SUCCESS (Rate: ${attRes.data.attendancePercent}%)`);
+  }
+
+  console.log('\n--- 6. Testing Teacher Portal Endpoints ---');
+  // /teacher/dashboard-stats
+  const statsRes = await fetch(`${BASE}/teacher/dashboard-stats`, {
+    headers: { 'Authorization': `Bearer ${teacherToken}` },
+  }).then(r => r.json());
+  if (statsRes.success) {
+    results.teacherStats = true;
+    console.log(`✅ GET /api/teacher/dashboard-stats: SUCCESS (Students: ${statsRes.data.totalStudents}, Courses: ${statsRes.data.totalCourses})`);
+  }
+
+  // /students
+  const studentsRes = await fetch(`${BASE}/students`, {
+    headers: { 'Authorization': `Bearer ${teacherToken}` },
+  }).then(r => r.json());
+  if (studentsRes.success && studentsRes.data?.length > 0) {
+    results.teacherStudentsList = true;
+    const foundNewStudent = studentsRes.data.find(s => s.username === testStudent.username);
+    if (foundNewStudent) {
+      results.newStudentVisibleToTeacher = true;
+      console.log(`✅ GET /api/students: SUCCESS (New student ${testStudent.fullName} appears on Teacher roster!)`);
+    } else {
+      console.warn('⚠️ New student not yet in roster list');
+    }
+  }
+
+  // /attendance/save
+  const saveAttRes = await fetch(`${BASE}/attendance/save`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${teacherToken}`,
+    },
     body: JSON.stringify({
-      fullName: 'Emma Watson',
-      username: `emma_${Date.now().toString().slice(-4)}`,
-      mobileNumber: '+1 (555) 987-6543',
-      rollNumber: testStudentRoll,
-      email: `emma.${Date.now().toString().slice(-4)}@student.webcraft.edu`,
-      password: 'Password123!',
-      confirmPassword: 'Password123!',
-    })
+      date: '2026-10-05',
+      records: [{ studentId: signupRes.data?.user?.id || 'std-1', status: 'present' }],
+    }),
   }).then(r => r.json());
-  console.log(`13. Student Multi-Step Registration (Roll: ${testStudentRoll}):`, signupRes.success ? '✅ PASS' : '❌ FAIL');
+  if (saveAttRes.success) {
+    results.attendanceSave = true;
+    console.log('✅ POST /api/attendance/save: SUCCESS');
+  }
 
-  // 14. Notifications
-  const notifRes = await fetch(`${BASE}/notifications`, {
-    headers: { 'Authorization': `Bearer ${studentToken}` }
+  // /courses create
+  const testCourse = {
+    title: 'Advanced Next.js App Router Masterclass',
+    description: 'Master server components, server actions, parallel routes, and metadata.',
+    level: 'Advanced',
+  };
+  const createCourseRes = await fetch(`${BASE}/courses`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${teacherToken}`,
+    },
+    body: JSON.stringify(testCourse),
   }).then(r => r.json());
-  console.log(`14. Notifications Feed (${notifRes.data.notifications.length} messages, ${notifRes.data.unreadCount} unread):`, notifRes.success ? '✅ PASS' : '❌ FAIL');
+  if (createCourseRes.success && createCourseRes.data?.id) {
+    results.teacherCourseCreate = true;
+    console.log(`✅ POST /api/courses: SUCCESS (Created ID: ${createCourseRes.data.id})`);
+  }
 
-  console.log('\n✨ ALL 14 WORKFLOW & SECURITY TESTS PASSED PERFECTLY!\n');
+  server.close();
+
+  console.log('\n====================================================');
+  console.log('📊 FINAL TEST RESULTS SUMMARY:');
+  console.log('====================================================');
+  let passed = 0;
+  let total = Object.keys(results).length;
+  for (const [key, val] of Object.entries(results)) {
+    console.log(`${val ? '✅' : '❌'} ${key}: ${val ? 'PASSED' : 'FAILED'}`);
+    if (val) passed++;
+  }
+  console.log(`\nScore: ${passed} / ${total} tests passed (${Math.round((passed/total)*100)}%)`);
+  console.log('====================================================\n');
 }
 
 runTests().catch(console.error);

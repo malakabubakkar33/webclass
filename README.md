@@ -136,3 +136,46 @@ npm run dev
 * `SUPABASE_URL` & `SUPABASE_SERVICE_ROLE_KEY`: Admin key for storage management (Never exposed to frontend)
 * `RESEND_API_KEY`: API key for automated lesson emails
 * `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`: Admin SDK credentials for FCM push notifications
+
+---
+
+## ⚡ Vercel Single-Deployment (Frontend + Backend Together)
+
+This repository is pre-configured to deploy **both frontend and backend together as a single unified Vercel deployment** with zero CORS or 405/500 routing issues.
+
+### How to Deploy to Vercel:
+
+1. **Push your code to GitHub:**
+   ```bash
+   git add .
+   git commit -m "feat: unified vercel full-stack deployment"
+   git push origin main
+   ```
+
+2. **Import into Vercel:**
+   * Go to your [Vercel Dashboard](https://vercel.com/dashboard)
+   * Click **"Add New..."** ➔ **"Project"**
+   * Select your GitHub repository (`thirtytwo`)
+   * **Root Directory:** Leave as `./` (do NOT select frontend or backend subfolder)
+   * **Framework Preset:** Vite (or Other)
+   * Build command and output directory are automatically configured via [`vercel.json`](file:///d:/projects/app/thirtytwo/vercel.json):
+     * Build Command: `npm run build`
+     * Output Directory: `frontend/dist`
+
+3. **Configure Environment Variables in Vercel:**
+   In your Vercel project settings under **Environment Variables**, add the values from [`.env.example`](file:///d:/projects/app/thirtytwo/.env.example):
+   * `JWT_SECRET`: `super-secret-jwt-key-change-this-in-production-class-2026`
+   * `SUPABASE_URL`: `https://vejdcilgwgiscaspbfho.supabase.co`
+   * `SUPABASE_SERVICE_ROLE_KEY`: `your-supabase-service-role-key`
+   * `SUPABASE_PUBLISHABLE_KEY`: `your-supabase-publishable-key`
+   * `RESEND_API_KEY`: `re_your_resend_api_key_here`
+   * `RESEND_FROM_EMAIL`: `SMIT Web Class <onboarding@resend.dev>`
+   * `FIREBASE_PROJECT_ID`: `smit-f947b`
+   * `FIREBASE_CLIENT_EMAIL`: `firebase-adminsdk-fbsvc@smit-f947b.iam.gserviceaccount.com`
+   * `FIREBASE_PRIVATE_KEY`: your Firebase private key string
+
+4. **Click "Deploy":**
+   * Vercel will run `npm run build` (compiling backend TS and building frontend Vite assets).
+   * Vercel Serverless Functions (`api/index.js` and `api/[...path].js`) will handle all `/api/*` requests.
+   * Vite SPA static assets in `frontend/dist` will handle all client page routes.
+   * Everything runs under a single live domain without 405 Method Not Allowed or 500 errors!

@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../config/database.js';
+import { SupabaseDbService } from './supabaseDbService.js';
 import { User, StudentProfile, TeacherProfile, PasswordReset } from '../models/types.js';
 import { signToken, TokenPayload } from '../utils/jwt.js';
 import { NotificationService } from './notificationService.js';
@@ -19,7 +20,8 @@ export interface StudentSignupInput {
 export class AuthService {
   /**
    * Unified login for both Teacher and Student.
-   * Accepts username OR roll number (for student).
+   * Accepts username, roll number (for student), or email.
+   * Queries Supabase PostgreSQL with local cache fallback.
    */
   public static async login(identifier: string, password: string): Promise<{
     token: string;
@@ -37,40 +39,63 @@ export class AuthService {
   }> {
     const trimmedId = identifier.trim();
 
-    // 1. Direct match on username or email in db.users (Case insensitive)
-    let user = db.users.find(
-      u => u.username.toLowerCase() === trimmedId.toLowerCase() ||
-           u.email.toLowerCase() === trimmedId.toLowerCase()
-    );
+    // 0. Primary query: Supabase PostgreSQL
+    let user: User | null = null;
+    let studentProfile: StudentProfile | null = null;
+    let teacherProfile: TeacherProfile | null = null;
 
-    // 1b. Allow 'teacher' or 'admin' alias to match teacher account
-    if (!user && (trimmedId.toLowerCase() === 'teacher' || trimmedId.toLowerCase() === 'admin')) {
-      user = db.users.find(u => u.role === 'teacher');
-    }
-
-    // 2. If not found, match on student roll number, profile email, or profile username
-    if (!user) {
-      const studentProfile = db.student_profiles.find(
-        p => (p.roll_number && p.roll_number.trim().toLowerCase() === trimmedId.toLowerCase()) ||
-             (p.email && p.email.trim().toLowerCase() === trimmedId.toLowerCase()) ||
-             (p.username && p.username.trim().toLowerCase() === trimmedId.toLowerCase())
-      );
-      if (studentProfile) {
-        user = db.users.find(u => u.id === studentProfile.user_id);
+    if (SupabaseDbService.isConnected()) {
+      try {
+        user = await SupabaseDbService.findUserByIdentifier(trimmedId);
+        if (user) {
+          if (user.role === 'student') {
+            studentProfile = await SupabaseDbService.getStudentProfile(user.id);
+          } else {
+            teacherProfile = await SupabaseDbService.getTeacherProfile(user.id);
+          }
+        }
+      } catch (e: any) {
+        console.warn('[AuthService] Supabase user query notice:', e?.message || e);
       }
     }
 
-    // 3. Fallback: match roll number ignoring formatting differences (e.g. WD-2026-001 vs WD2026001)
+    // Fallback: Local database store
     if (!user) {
-      const cleanId = trimmedId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      if (cleanId.length >= 4) {
-        const studentProfile = db.student_profiles.find(p => {
-          if (!p.roll_number) return false;
-          const cleanRoll = p.roll_number.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-          return cleanRoll === cleanId;
-        });
-        if (studentProfile) {
-          user = db.users.find(u => u.id === studentProfile.user_id);
+      // 1. Direct match on username or email in db.users (Case insensitive)
+      user = db.users.find(
+        u => u.username.toLowerCase() === trimmedId.toLowerCase() ||
+             u.email.toLowerCase() === trimmedId.toLowerCase()
+      ) || null;
+
+      // 1b. Allow 'teacher' or 'admin' alias to match teacher account
+      if (!user && (trimmedId.toLowerCase() === 'teacher' || trimmedId.toLowerCase() === 'admin')) {
+        user = db.users.find(u => u.role === 'teacher') || null;
+      }
+
+      // 2. If not found, match on student roll number, profile email, or profile username
+      if (!user) {
+        const sp = db.student_profiles.find(
+          p => (p.roll_number && p.roll_number.trim().toLowerCase() === trimmedId.toLowerCase()) ||
+               (p.email && p.email.trim().toLowerCase() === trimmedId.toLowerCase()) ||
+               (p.username && p.username.trim().toLowerCase() === trimmedId.toLowerCase())
+        );
+        if (sp) {
+          user = db.users.find(u => u.id === sp.user_id) || null;
+        }
+      }
+
+      // 3. Fallback: match roll number ignoring formatting differences (e.g. WD-2026-001 vs WD2026001)
+      if (!user) {
+        const cleanId = trimmedId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        if (cleanId.length >= 4) {
+          const sp = db.student_profiles.find(p => {
+            if (!p.roll_number) return false;
+            const cleanRoll = p.roll_number.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            return cleanRoll === cleanId;
+          });
+          if (sp) {
+            user = db.users.find(u => u.id === sp.user_id) || null;
+          }
         }
       }
     }
@@ -96,14 +121,14 @@ export class AuthService {
     let rollNumber: string | undefined = undefined;
 
     if (user.role === 'student') {
-      const sp = db.student_profiles.find(p => p.user_id === user.id);
+      const sp = studentProfile || db.student_profiles.find(p => p.user_id === user!.id);
       if (sp) {
         fullName = sp.full_name;
         avatarUrl = sp.avatar_url;
         rollNumber = sp.roll_number;
       }
     } else {
-      const tp = db.teacher_profiles.find(p => p.user_id === user.id) || db.teacher_profiles[0];
+      const tp = teacherProfile || db.teacher_profiles.find(p => p.user_id === user!.id) || db.teacher_profiles[0];
       if (tp) {
         fullName = tp.full_name;
         avatarUrl = tp.avatar_url;
@@ -137,23 +162,55 @@ export class AuthService {
 
   /**
    * Student Signup (multi-step form completion)
+   * Validates duplicate username, roll number, email, hashes password with bcrypt,
+   * inserts into Supabase PostgreSQL database, generates JWT, and sets active session.
    */
   public static async registerStudent(input: StudentSignupInput) {
     const username = input.username.trim().toLowerCase();
     const email = input.email.trim().toLowerCase();
     const rollNumber = input.rollNumber.trim().toUpperCase();
 
-    // 1. Validation for username uniqueness
+    // 1. Validation for username uniqueness in Supabase & local
+    if (SupabaseDbService.isConnected()) {
+      try {
+        const existing = await SupabaseDbService.findUserByIdentifier(username);
+        if (existing) {
+          throw new Error(`The username "${input.username}" is already taken. Please choose another username.`);
+        }
+      } catch (e: any) {
+        if (e.message && e.message.includes('already taken')) throw e;
+      }
+    }
     if (db.users.some(u => u.username.toLowerCase() === username)) {
       throw new Error(`The username "${input.username}" is already taken. Please choose another username.`);
     }
 
-    // 2. Validation for email uniqueness
+    // 2. Validation for email uniqueness in Supabase & local
+    if (SupabaseDbService.isConnected()) {
+      try {
+        const existing = await SupabaseDbService.findUserByIdentifier(email);
+        if (existing) {
+          throw new Error(`The email address "${input.email}" is already registered. Please sign in or use another email.`);
+        }
+      } catch (e: any) {
+        if (e.message && e.message.includes('already registered')) throw e;
+      }
+    }
     if (db.users.some(u => u.email.toLowerCase() === email)) {
       throw new Error(`The email address "${input.email}" is already registered. Please sign in or use another email.`);
     }
 
-    // 3. Strict unique roll number check: multiple accounts with the same roll number are prohibited!
+    // 3. Strict unique roll number check in Supabase & local
+    if (SupabaseDbService.isConnected()) {
+      try {
+        const existing = await SupabaseDbService.findUserByIdentifier(rollNumber);
+        if (existing) {
+          throw new Error(`Roll Number "${input.rollNumber.trim()}" is already registered. An account with this roll number already exists. Each student must have a unique institutional roll number.`);
+        }
+      } catch (e: any) {
+        if (e.message && e.message.includes('already registered')) throw e;
+      }
+    }
     const cleanNewRoll = rollNumber.replace(/[^a-zA-Z0-9]/g, '');
     const isRollTaken = db.student_profiles.some(p => {
       if (!p.roll_number) return false;
@@ -165,7 +222,7 @@ export class AuthService {
       throw new Error(`Roll Number "${input.rollNumber.trim()}" is already registered. An account with this roll number already exists. Each student must have a unique institutional roll number.`);
     }
 
-    // Hash password
+    // Hash password with bcrypt
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(input.password, salt);
 
@@ -195,6 +252,17 @@ export class AuthService {
       updated_at: new Date().toISOString(),
     };
 
+    // 4. Insert directly into Supabase PostgreSQL for permanent cloud storage
+    if (SupabaseDbService.isConnected()) {
+      try {
+        await SupabaseDbService.insertStudent(newUser, newProfile);
+        console.log(`[AuthService] Successfully persisted student in Supabase PostgreSQL: ${username} (${rollNumber})`);
+      } catch (err: any) {
+        console.warn('[AuthService] Supabase insert warning (falling back to local):', err.message);
+      }
+    }
+
+    // Always keep in-memory / local sync
     db.users.push(newUser);
     db.student_profiles.push(newProfile);
     db.save();

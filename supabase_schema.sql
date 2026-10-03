@@ -1,7 +1,8 @@
 -- ====================================================================
 -- SMIT WEBCRAFT LMS: SUPABASE POSTGRESQL PRODUCTION DATABASE SCHEMA
--- Execute this script in: Supabase Dashboard -> SQL Editor -> New Query
--- Target Project: https://vejdcilgwgiscaspbfho.supabase.co
+-- Instructions:
+-- 1. Open your Supabase Dashboard: https://supabase.com/dashboard/project/vejdcilgwgiscaspbfho/sql
+-- 2. Click "New Query", paste this entire script, and click "Run" (Ctrl+Enter).
 -- ====================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -277,5 +278,128 @@ ALTER TABLE password_resets DISABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_logs DISABLE ROW LEVEL SECURITY;
 ALTER TABLE class_settings DISABLE ROW LEVEL SECURITY;
 
--- Reload Supabase Schema Cache
+-- ====================================================================
+-- SEED INITIAL DATA: Teacher Account & Initial Courses
+-- Password: Password123!
+-- ====================================================================
+INSERT INTO users (id, role, username, email, password_hash, is_active, created_at, updated_at)
+VALUES (
+    'b48f07b1-1234-4567-89ab-cdef01234567',
+    'teacher',
+    'teacher',
+    'teacher@webcraft.edu',
+    '$2a$10$ax966UUArJf24g2/U5DXu.0mmvGiD7GCgFrtjyVh8eG4mZDlpMhnG',
+    true,
+    NOW(),
+    NOW()
+) ON CONFLICT (username) DO NOTHING;
+
+INSERT INTO teacher_profiles (id, user_id, full_name, username, email, mobile_number, avatar_url, bio, created_at, updated_at)
+VALUES (
+    'c59f07b1-1234-4567-89ab-cdef01234567',
+    'b48f07b1-1234-4567-89ab-cdef01234567',
+    'Prof. Alex Vance',
+    'teacher',
+    'teacher@webcraft.edu',
+    '+92 300 1234567',
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
+    'Lead Full-Stack Web Development Architect & Classroom Instructor with 12+ years experience.',
+    NOW(),
+    NOW()
+) ON CONFLICT (username) DO NOTHING;
+
+-- Initial Class Settings
+INSERT INTO class_settings (id, class_name, teacher_id, class_days, class_start_time, class_end_time, timezone, location)
+VALUES (
+    'smit-web-class-settings-01',
+    'SMIT Web Development Class',
+    'b48f07b1-1234-4567-89ab-cdef01234567',
+    ARRAY['monday', 'thursday'],
+    '18:00',
+    '20:30',
+    'Asia/Karachi',
+    'SMIT Main Campus / Live Cohort'
+) ON CONFLICT (id) DO NOTHING;
+
+-- Courses Definition
+INSERT INTO courses (id, title, slug, description, thumbnail_url, level, created_by, is_published)
+VALUES
+('course-html', 'HTML5 Semantic Web Architecture', 'html', 'Master modern semantic markup, accessible forms, audio/video integration, and document layout foundations.', 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=600', 'Beginner', 'b48f07b1-1234-4567-89ab-cdef01234567', true),
+('course-css', 'Modern CSS3 & Responsive Design', 'css', 'Deep dive into Flexbox, CSS Grid, custom properties, animations, and Tailwind utility systems.', 'https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?auto=format&fit=crop&q=80&w=600', 'Beginner', 'b48f07b1-1234-4567-89ab-cdef01234567', true),
+('course-javascript', 'JavaScript Deep Dive & DOM Engineering', 'javascript', 'Core language mechanisms, closures, prototypes, asynchronous JavaScript, Promises, and the Event Loop.', 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?auto=format&fit=crop&q=80&w=600', 'Intermediate', 'b48f07b1-1234-4567-89ab-cdef01234567', true),
+('course-typescript', 'TypeScript for Production Web Apps', 'typescript', 'Static typing, interfaces, generics, utility types, unions, and configuring strict type safety.', 'https://images.unsplash.com/photo-1516116211227-bbc15456b3e3?auto=format&fit=crop&q=80&w=600', 'Intermediate', 'b48f07b1-1234-4567-89ab-cdef01234567', true),
+('course-react', 'React Enterprise Component Architecture', 'react', 'Hooks, state management, context, TanStack Query caching, custom hooks, and memoization patterns.', 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=600', 'Intermediate', 'b48f07b1-1234-4567-89ab-cdef01234567', true),
+('course-firebase', 'Firebase Cloud Mastery & Push Notifications', 'firebase', 'Firebase Cloud Messaging (FCM), Cloud Firestore, Authentication, and real-time client sync.', 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?auto=format&fit=crop&q=80&w=600', 'Advanced', 'b48f07b1-1234-4567-89ab-cdef01234567', true),
+('course-supabase', 'Supabase & PostgreSQL Full-Stack Architecture', 'supabase', 'Relational data modeling, Row-Level Security (RLS) policies, Supabase Storage buckets, and Edge functions.', 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=600', 'Advanced', 'b48f07b1-1234-4567-89ab-cdef01234567', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Topics
+INSERT INTO topics (id, course_id, title, description, order_index)
+VALUES
+('topic-html-1', 'course-html', 'Introduction to HTML5', 'History, document declaration, viewport configuration, and metadata.', 1),
+('topic-html-2', 'course-html', 'HTML Structure & Semantics', 'Header, nav, main, section, article, aside, and footer elements.', 2),
+('topic-css-1', 'course-css', 'The CSS Box Model & Selectors', 'Margins, borders, padding, content box vs border box, specificity.', 1),
+('topic-css-2', 'course-css', 'Flexbox Layout Essentials', 'Justify-content, align-items, flex direction, grow, shrink, and wrap.', 2),
+('topic-js-1', 'course-javascript', 'Modern ES6+ Syntax & Scope', 'Let, const, arrow functions, destructuring, and template literals.', 1),
+('topic-ts-1', 'course-typescript', 'TypeScript Fundamentals & Type Annotations', 'Primitives, arrays, tuples, enums, and type inference.', 1),
+('topic-react-1', 'course-react', 'React Hooks Core (useState, useEffect)', 'Component lifecycles, effect dependencies, cleanups, and synchronization.', 1),
+('topic-firebase-1', 'course-firebase', 'Firebase Push Notifications with FCM', 'Service workers, device token registration, payload construction, and delivery.', 1),
+('topic-supabase-1', 'course-supabase', 'PostgreSQL Schema Design & Constraints', 'Foreign keys, indexes, triggers, and cascading constraints.', 1)
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Videos
+INSERT INTO videos (id, course_id, topic_id, title, description, video_url, duration, order_index, uploaded_by)
+VALUES
+('video-html-1-1', 'course-html', 'topic-html-1', 'Welcome to Web Development & HTML5', 'Introduction to web architecture, client-server models, and HTML fundamentals.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', '12:45', 1, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-html-1-2', 'course-html', 'topic-html-1', 'Anatomy of an HTML Document', 'Understanding DOCTYPE, html, head, title, meta viewport, and body tags.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', '16:20', 2, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-html-2-1', 'course-html', 'topic-html-2', 'Semantic Tags vs Generic Divs', 'Structuring pages using semantic HTML elements for accessibility and SEO.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', '14:10', 1, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-css-1-1', 'course-css', 'topic-css-1', 'Mastering the CSS Box Model', 'Content, padding, border, margin and box-sizing: border-box explained.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', '18:25', 1, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-css-2-1', 'course-css', 'topic-css-2', 'Complete Guide to CSS Flexbox', 'Flex container, flex items, axis alignment, wrapping and responsive flex cards.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4', '24:50', 1, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-js-1-1', 'course-javascript', 'topic-js-1', 'ES6+ Features You Must Know', 'Const, let, arrow functions, destructuring, template literals, and default parameters.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4', '21:05', 1, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-ts-1-1', 'course-typescript', 'topic-ts-1', 'Getting Started with Strong Typing', 'Introduction to TypeScript compiler, type annotations, and interface definitions.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', '17:40', 1, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-react-1-1', 'course-react', 'topic-react-1', 'useState and useEffect Deep Dive', 'Managing state and side effects in React functional components.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', '28:40', 1, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-firebase-1-1', 'course-firebase', 'topic-firebase-1', 'Setting Up Firebase Cloud Messaging', 'Configuring push notifications, service workers, and device token registration.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', '19:50', 1, 'b48f07b1-1234-4567-89ab-cdef01234567'),
+('video-supabase-1-1', 'course-supabase', 'topic-supabase-1', 'Relational Modeling in Supabase', 'Creating PostgreSQL tables, setting up foreign keys, and querying data.', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4', '24:10', 1, 'b48f07b1-1234-4567-89ab-cdef01234567')
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Assignments
+INSERT INTO assignments (id, course_id, topic_id, teacher_id, title, description, instructions, requirements, due_at, max_marks, allowed_file_types, max_file_size_mb, max_submissions, allow_resubmission, published)
+VALUES
+(
+    'assign-html-portfolio',
+    'course-html',
+    'topic-html-1',
+    'b48f07b1-1234-4567-89ab-cdef01234567',
+    'HTML5 Semantic Web Architecture & Portfolio',
+    'Design and code a fully accessible, semantic multi-page HTML portfolio following modern HTML5 web standards.',
+    'Create an accessible, semantic HTML5 structure including header, nav, main, article, section, aside, and footer tags. Implement structured form controls with validation attributes.',
+    ARRAY['Use valid HTML5 doctype and meta tags for responsive viewport', 'Include semantic tags: header, nav, main, article, section, footer', 'Build a comprehensive contact form with required field validation', 'Validate markup using W3C HTML validator without errors'],
+    NOW() + INTERVAL '14 days',
+    100,
+    ARRAY['pdf', 'png', 'jpg', 'jpeg', 'webp'],
+    20,
+    3,
+    true,
+    true
+),
+(
+    'assign-css-flexbox',
+    'course-css',
+    'topic-css-1',
+    'b48f07b1-1234-4567-89ab-cdef01234567',
+    'Modern CSS Flexbox & Grid Dashboard Layout',
+    'Construct a responsive multi-column SaaS analytics dashboard layout using CSS Flexbox and modern CSS Grid techniques.',
+    'Implement mobile-first responsive breakpoints. Utilize CSS custom properties for theme consistency. Ensure no horizontal page overflow.',
+    ARRAY['Mobile-first responsive design using CSS Flexbox and Grid', 'Use CSS custom properties for colors and typography', 'Smooth hover micro-animations and transition states'],
+    NOW() + INTERVAL '21 days',
+    100,
+    ARRAY['pdf', 'png', 'jpg', 'jpeg', 'webp'],
+    25,
+    2,
+    true,
+    true
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Notify schema reload
 NOTIFY pgrst, 'reload schema';

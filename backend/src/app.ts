@@ -42,7 +42,15 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve local static uploaded media files
-app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
+const isVercelEnv = Boolean(process.env.VERCEL);
+const uploadsDir = isVercelEnv
+  ? '/tmp/uploads'
+  : (path.resolve(process.cwd(), 'uploads'));
+
+app.use('/uploads', express.static(uploadsDir));
+if (isVercelEnv) {
+  app.use('/uploads', express.static('/tmp/uploads'));
+}
 
 // Root endpoint for API and browser redirect
 app.get('/', (req, res) => {
