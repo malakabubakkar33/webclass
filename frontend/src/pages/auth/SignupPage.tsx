@@ -23,6 +23,7 @@ import {
   EyeOff,
   ShieldCheck,
   ShieldAlert,
+  Loader2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -51,6 +52,76 @@ export const SignupPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [photoUploadError, setPhotoUploadError] = useState<string | null>(null);
+
+  // Client-side image compression and direct Cloud Storage upload
+  const handlePhotoSelected = async (file: File) => {
+    if (!file) return;
+    setIsUploadingPhoto(true);
+    setPhotoUploadError(null);
+
+    try {
+      // 1. Fast client compression to max 500x500 JPEG (~50-80KB)
+      const { blob, dataUrl } = await new Promise<{ blob: Blob; dataUrl: string }>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDim = 500;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxDim) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              }
+            } else {
+              if (height > maxDim) {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              resolve({ blob: file, dataUrl: reader.result as string });
+              return;
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            canvas.toBlob(
+              (b) => {
+                resolve({ blob: b || file, dataUrl: compressedDataUrl });
+              },
+              'image/jpeg',
+              0.85
+            );
+          };
+          img.src = reader.result as string;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Show immediate local preview
+      setFormData((prev) => ({ ...prev, avatarUrl: dataUrl }));
+
+      // 2. Upload to Cloud Supabase Storage
+      const uploadData = new FormData();
+      uploadData.append('avatar', blob, 'avatar.jpg');
+      const res = await api.uploadAvatar(uploadData);
+      if (res.data?.success && res.data.data?.avatarUrl) {
+        setFormData((prev) => ({ ...prev, avatarUrl: res.data.data.avatarUrl }));
+      }
+    } catch (err: any) {
+      console.warn('[PhotoUpload] Cloud upload fallback to compressed data URL:', err);
+      // Even if direct upload has slow network, dataUrl is safely kept in avatarUrl
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
 
   // Dynamic Password Strength Meter
   const getPasswordStrength = (pass: string) => {
@@ -109,7 +180,7 @@ export const SignupPage: React.FC = () => {
     setIsLoading(true);
     try {
       const submissionData = { ...formData };
-      if (submissionData.avatarUrl && submissionData.avatarUrl.startsWith('blob:')) {
+      if (!submissionData.avatarUrl || submissionData.avatarUrl.trim() === '') {
         submissionData.avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(submissionData.fullName || 'Student')}`;
       }
 
@@ -334,32 +405,11 @@ export const SignupPage: React.FC = () => {
                       <input
                         type="file"
                         accept="image/png,image/jpeg,image/webp,image/jpg"
+                        disabled={isUploadingPhoto}
                         className="hidden"
-                        onChange={async (e) => {
+                        onChange={(e) => {
                           if (e.target.files && e.target.files[0]) {
-                            const file = e.target.files[0];
-                            const localPreview = URL.createObjectURL(file);
-                            setFormData((prev) => ({ ...prev, avatarUrl: localPreview }));
-                            setIsUploadingPhoto(true);
-                            setPhotoUploadError(null);
-                            try {
-                              const uploadData = new FormData();
-                              uploadData.append('avatar', file);
-                              const res = await api.uploadAvatar(uploadData);
-                              if (res.data?.success && res.data.data?.avatarUrl) {
-                                setFormData((prev) => ({ ...prev, avatarUrl: res.data.data.avatarUrl }));
-                              }
-                            } catch (err: any) {
-                              const reader = new FileReader();
-                              reader.onload = () => {
-                                if (typeof reader.result === 'string') {
-                                  setFormData((prev) => ({ ...prev, avatarUrl: reader.result as string }));
-                                }
-                              };
-                              reader.readAsDataURL(file);
-                            } finally {
-                              setIsUploadingPhoto(false);
-                            }
+                            handlePhotoSelected(e.target.files[0]);
                           }
                         }}
                       />
@@ -374,44 +424,22 @@ export const SignupPage: React.FC = () => {
                   <Upload className="w-10 h-10 text-primary-600 mx-auto" />
                   <div>
                     <p className="text-sm font-extrabold text-navy-900">Upload Image from your Device</p>
-                    <p className="text-xs text-slate-500 mt-1">Supports JPG, PNG, WEBP up to 10MB</p>
+                    <p className="text-xs text-slate-500 mt-1">Supports JPG, PNG, WEBP up to 10MB (Automatically optimized)</p>
                   </div>
 
                   <label className="inline-block">
                     <span className="px-5 py-2.5 bg-white border border-slate-200 hover:border-primary-500 text-primary-600 text-xs font-extrabold rounded-xl shadow-xs cursor-pointer inline-flex items-center gap-2 hover:bg-blue-50/50 transition">
-                      <Camera className="w-4 h-4" />
-                      {isUploadingPhoto ? 'Uploading photo...' : 'Browse Device Files'}
+                      {isUploadingPhoto ? <Loader2 className="w-4 h-4 animate-spin text-primary-600" /> : <Camera className="w-4 h-4" />}
+                      {isUploadingPhoto ? 'Uploading to Cloud...' : 'Browse Device Files'}
                     </span>
                     <input
                       type="file"
                       accept="image/png,image/jpeg,image/webp,image/jpg"
                       disabled={isUploadingPhoto}
                       className="hidden"
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         if (e.target.files && e.target.files[0]) {
-                          const file = e.target.files[0];
-                          const localPreview = URL.createObjectURL(file);
-                          setFormData((prev) => ({ ...prev, avatarUrl: localPreview }));
-                          setIsUploadingPhoto(true);
-                          setPhotoUploadError(null);
-                          try {
-                            const uploadData = new FormData();
-                            uploadData.append('avatar', file);
-                            const res = await api.uploadAvatar(uploadData);
-                            if (res.data?.success && res.data.data?.avatarUrl) {
-                              setFormData((prev) => ({ ...prev, avatarUrl: res.data.data.avatarUrl }));
-                            }
-                          } catch (err: any) {
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              if (typeof reader.result === 'string') {
-                                setFormData((prev) => ({ ...prev, avatarUrl: reader.result as string }));
-                              }
-                            };
-                            reader.readAsDataURL(file);
-                          } finally {
-                            setIsUploadingPhoto(false);
-                          }
+                          handlePhotoSelected(e.target.files[0]);
                         }
                       }}
                     />
@@ -440,10 +468,12 @@ export const SignupPage: React.FC = () => {
                     onClick={handleNextStep}
                     variant="primary"
                     size="lg"
+                    disabled={isUploadingPhoto}
+                    isLoading={isUploadingPhoto}
                     className="font-bold shadow-md shadow-primary-500/20 px-8"
                     rightIcon={<ArrowRight className="w-4 h-4" />}
                   >
-                    Continue to Security
+                    {isUploadingPhoto ? 'Uploading Photo...' : 'Continue to Security'}
                   </Button>
                 </div>
               </motion.div>

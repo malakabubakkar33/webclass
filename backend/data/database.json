@@ -5,10 +5,12 @@
       "role": "teacher",
       "username": "teacher",
       "email": "teacher@webcraft.edu",
-      "password_hash": "/U5DXu.0mmvGiD7GCgFrtjyVh8eG4mZDlpMhnG",
+      "password_hash": "$2a$10$ax966UUArJf24g2/U5DXu.0mmvGiD7GCgFrtjyVh8eG4mZDlpMhnG",
       "is_active": true,
-      "created_at": "2026-01-10T08:00:00.000Z",
-      "updated_at": "2026-10-03T12:37:04.154Z"
+      "is_dropped": false,
+      "dropped_reason": "",
+      "created_at": "2026-10-03T11:39:01.844909+00:00",
+      "updated_at": "2026-10-03T11:39:01.844909+00:00"
     }
   ],
   "student_profiles": [],

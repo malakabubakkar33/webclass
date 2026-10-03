@@ -311,14 +311,41 @@ export class AuthService {
   /**
    * Get authenticated user profile details
    */
+  /**
+   * Get authenticated user profile details
+   */
   public static async getProfile(userId: string) {
-    const user = db.users.find(u => u.id === userId);
+    let user = db.users.find(u => u.id === userId);
+
+    if (SupabaseDbService.isConnected()) {
+      try {
+        const supaUser = await SupabaseDbService.getUserById(userId);
+        if (supaUser) {
+          user = supaUser;
+          if (!db.users.some(u => u.id === supaUser.id)) {
+            db.users.push(supaUser);
+          }
+        }
+      } catch (err) {
+        console.warn('[AuthService] Could not fetch user from Supabase, falling back to local:', err);
+      }
+    }
+
     if (!user) throw new Error('User not found');
 
     if (user.role === 'student') {
-      let profile = db.student_profiles.find(p => p.user_id === userId);
+      let profile: StudentProfile | null = null;
+      if (SupabaseDbService.isConnected()) {
+        try {
+          profile = await SupabaseDbService.getStudentProfile(userId);
+        } catch (err) {
+          console.warn('[AuthService] Supabase student profile error:', err);
+        }
+      }
       if (!profile) {
-        profile = db.student_profiles.find(p => p.email.toLowerCase() === user.email.toLowerCase());
+        profile = db.student_profiles.find(p => p.user_id === userId) ||
+                  db.student_profiles.find(p => p.email.toLowerCase() === user!.email.toLowerCase()) ||
+                  null;
       }
       return {
         id: user.id,
@@ -330,7 +357,17 @@ export class AuthService {
         profile: profile || null,
       };
     } else {
-      let profile = db.teacher_profiles.find(p => p.user_id === userId) || db.teacher_profiles[0];
+      let profile: TeacherProfile | null = null;
+      if (SupabaseDbService.isConnected()) {
+        try {
+          profile = await SupabaseDbService.getTeacherProfile(userId);
+        } catch (err) {
+          console.warn('[AuthService] Supabase teacher profile error:', err);
+        }
+      }
+      if (!profile) {
+        profile = db.teacher_profiles.find(p => p.user_id === userId) || db.teacher_profiles[0] || null;
+      }
       return {
         id: user.id,
         role: user.role,
@@ -348,13 +385,34 @@ export class AuthService {
     userId: string,
     updates: { fullName?: string; mobileNumber?: string; avatarUrl?: string; bio?: string }
   ) {
-    const user = db.users.find(u => u.id === userId);
+    let user = db.users.find(u => u.id === userId);
+    if (SupabaseDbService.isConnected()) {
+      try {
+        const supaUser = await SupabaseDbService.getUserById(userId);
+        if (supaUser) user = supaUser;
+      } catch (err) {
+        console.warn('[AuthService] getUserById error in updateProfile:', err);
+      }
+    }
     if (!user) throw new Error('User not found');
 
     if (user.role === 'student') {
+      const supaUpdates: Partial<StudentProfile> = {};
+      if (updates.fullName !== undefined) supaUpdates.full_name = updates.fullName;
+      if (updates.mobileNumber !== undefined) supaUpdates.mobile_number = updates.mobileNumber;
+      if (updates.avatarUrl !== undefined) supaUpdates.avatar_url = updates.avatarUrl;
+
+      if (SupabaseDbService.isConnected() && Object.keys(supaUpdates).length > 0) {
+        try {
+          await SupabaseDbService.updateStudentProfile(userId, supaUpdates);
+        } catch (err) {
+          console.error('[AuthService] Failed to update student profile in Supabase:', err);
+        }
+      }
+
       let profile = db.student_profiles.find(p => p.user_id === userId);
       if (!profile) {
-        profile = db.student_profiles.find(p => p.email.toLowerCase() === user.email.toLowerCase());
+        profile = db.student_profiles.find(p => p.email.toLowerCase() === user!.email.toLowerCase());
       }
       if (profile) {
         if (updates.fullName !== undefined) profile.full_name = updates.fullName;
@@ -378,6 +436,20 @@ export class AuthService {
         db.student_profiles.push(profile);
       }
     } else {
+      const supaUpdates: Partial<TeacherProfile> = {};
+      if (updates.fullName !== undefined) supaUpdates.full_name = updates.fullName;
+      if (updates.mobileNumber !== undefined) supaUpdates.mobile_number = updates.mobileNumber;
+      if (updates.avatarUrl !== undefined) supaUpdates.avatar_url = updates.avatarUrl;
+      if (updates.bio !== undefined) supaUpdates.bio = updates.bio;
+
+      if (SupabaseDbService.isConnected() && Object.keys(supaUpdates).length > 0) {
+        try {
+          await SupabaseDbService.updateTeacherProfile(userId, supaUpdates);
+        } catch (err) {
+          console.error('[AuthService] Failed to update teacher profile in Supabase:', err);
+        }
+      }
+
       const profile = db.teacher_profiles.find(p => p.user_id === userId) || db.teacher_profiles[0];
       if (profile) {
         if (updates.fullName !== undefined) profile.full_name = updates.fullName;

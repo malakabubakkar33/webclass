@@ -27,6 +27,15 @@ export const TeacherProfilePage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
+  // Synchronize local form and preview state with authenticated user state
+  React.useEffect(() => {
+    if (user) {
+      if (user.fullName) setFullName(user.fullName);
+      if (user.mobileNumber) setMobileNumber(user.mobileNumber);
+      if (user.avatarUrl) setAvatarUrl(user.avatarUrl);
+    }
+  }, [user]);
+
   // Password state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');

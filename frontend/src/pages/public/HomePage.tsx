@@ -23,6 +23,7 @@ import { AnimatedCounter } from '../../components/ui/AnimatedCounter.js';
 import { api } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useToast } from '../../context/ToastContext.js';
+import { getMediaUrl } from '../../utils/media.js';
 
 interface StatsData {
   totalStudents: number;
@@ -576,7 +577,7 @@ export const HomePage: React.FC = () => {
                     <div className="relative w-full h-48 bg-slate-100 overflow-hidden">
                       <img
                         src={
-                          student.avatarUrl ||
+                          getMediaUrl(student.avatarUrl) ||
                           `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`
                         }
                         alt={student.fullName}

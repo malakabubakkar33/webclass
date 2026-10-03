@@ -213,6 +213,31 @@ export class SupabaseDbService {
     return !error;
   }
 
+  public static async updateTeacherProfile(userId: string, updates: Partial<TeacherProfile>): Promise<boolean> {
+    const supabase = getSupabase();
+    if (!supabase) return false;
+    let query = supabase.from('teacher_profiles').update({ ...updates, updated_at: new Date().toISOString() });
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+    const { error } = await query;
+    return !error;
+  }
+
+  public static async getTopicsCount(): Promise<number> {
+    const supabase = getSupabase();
+    if (!supabase) return 0;
+    const { count, error } = await supabase.from('topics').select('*', { count: 'exact', head: true });
+    return error ? 0 : (count || 0);
+  }
+
+  public static async getVideosCount(): Promise<number> {
+    const supabase = getSupabase();
+    if (!supabase) return 0;
+    const { count, error } = await supabase.from('videos').select('*', { count: 'exact', head: true });
+    return error ? 0 : (count || 0);
+  }
+
   public static async toggleStudentActive(userId: string, isActive: boolean): Promise<boolean> {
     const supabase = getSupabase();
     if (!supabase) return false;
