@@ -31,42 +31,73 @@ export class SupabaseDbService {
 
     const trimmed = identifier.trim().toLowerCase();
 
-    // 1. Direct match on username or email
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('*')
-      .or(`username.ilike.${trimmed},email.ilike.${trimmed}`)
-      .limit(1);
-
-    if (!error && users && users.length > 0) {
-      return users[0] as User;
-    }
-
-    // 2. Check student_profiles by roll_number or email
-    const { data: profiles } = await supabase
-      .from('student_profiles')
-      .select('user_id')
-      .or(`roll_number.ilike.${trimmed},email.ilike.${trimmed},username.ilike.${trimmed}`)
-      .limit(1);
-
-    if (profiles && profiles.length > 0) {
-      const { data: userById } = await supabase
+    // 0. Quick alias for teacher login
+    if (trimmed === 'teacher' || trimmed === 'admin') {
+      const { data: teacherUser } = await supabase
         .from('users')
         .select('*')
-        .eq('id', profiles[0].user_id)
-        .single();
-      if (userById) return userById as User;
+        .eq('role', 'teacher')
+        .limit(1);
+      if (teacherUser && teacherUser.length > 0) {
+        return teacherUser[0] as User;
+      }
     }
 
-    // 3. Normalized roll number check (strip dashes/spaces e.g. WD2026001 vs WD-2026-001)
+    // 1. Direct match on username or email in users table (both quoted & direct)
+    try {
+      const { data: users, error } = await supabase
+        .from('users')
+        .select('*')
+        .or(`username.ilike."${trimmed}",email.ilike."${trimmed}"`)
+        .limit(1);
+
+      if (!error && users && users.length > 0) {
+        return users[0] as User;
+      }
+    } catch (e) {
+      // Fallback to exact match
+      const { data: uByName } = await supabase.from('users').select('*').ilike('username', trimmed).limit(1);
+      if (uByName && uByName.length > 0) return uByName[0] as User;
+      const { data: uByEmail } = await supabase.from('users').select('*').ilike('email', trimmed).limit(1);
+      if (uByEmail && uByEmail.length > 0) return uByEmail[0] as User;
+    }
+
+    // 2. Check student_profiles by roll_number, email, or username
+    try {
+      const { data: profiles, error: pErr } = await supabase
+        .from('student_profiles')
+        .select('user_id')
+        .or(`roll_number.ilike."${trimmed}",email.ilike."${trimmed}",username.ilike."${trimmed}"`)
+        .limit(1);
+
+      if (!pErr && profiles && profiles.length > 0 && profiles[0].user_id) {
+        const { data: userById } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', profiles[0].user_id)
+          .single();
+        if (userById) return userById as User;
+      }
+    } catch (e) {
+      // Fallback direct check on roll_number
+      const { data: pByRoll } = await supabase.from('student_profiles').select('user_id').ilike('roll_number', trimmed).limit(1);
+      if (pByRoll && pByRoll.length > 0) {
+        const { data: userById } = await supabase.from('users').select('*').eq('id', pByRoll[0].user_id).single();
+        if (userById) return userById as User;
+      }
+    }
+
+    // 3. Normalized roll number check (e.g. WD-2026-001, WD2026001, SMIT123)
     const cleanId = trimmed.replace(/[^a-z0-9]/g, '');
-    if (cleanId.length >= 4) {
+    if (cleanId.length >= 3) {
       const { data: allProfiles } = await supabase
         .from('student_profiles')
         .select('user_id, roll_number');
-      if (allProfiles) {
-        const matched = allProfiles.find(p => (p.roll_number || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase() === cleanId);
-        if (matched) {
+      if (allProfiles && allProfiles.length > 0) {
+        const matched = allProfiles.find(
+          p => (p.roll_number || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase() === cleanId
+        );
+        if (matched && matched.user_id) {
           const { data: userByProfile } = await supabase
             .from('users')
             .select('*')

@@ -106,7 +106,7 @@ export const FeaturesPage: React.FC = () => {
   ];
 
   return (
-    <div className="w-full bg-[#F8FAFC] py-14 sm:py-20">
+    <div className="w-full bg-[#F8FAFC] pt-8 sm:pt-10 pb-16 min-h-[75vh]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto">

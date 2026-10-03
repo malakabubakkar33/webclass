@@ -101,7 +101,7 @@ export class AuthService {
     }
 
     if (!user) {
-      throw new Error('Invalid credentials. Please verify your username, roll number, or email and password.');
+      throw new Error('No registered account found with this username, roll number, or email. Please check your spelling or register.');
     }
 
     if (!user.is_active) {
@@ -113,7 +113,7 @@ export class AuthService {
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      throw new Error('Invalid credentials. Please verify your username, roll number, or email and password.');
+      throw new Error('Incorrect password. Please verify your password or use the Forgot Password link to reset it.');
     }
 
     let fullName = user.username;
@@ -258,7 +258,8 @@ export class AuthService {
         await SupabaseDbService.insertStudent(newUser, newProfile);
         console.log(`[AuthService] Successfully persisted student in Supabase PostgreSQL: ${username} (${rollNumber})`);
       } catch (err: any) {
-        console.warn('[AuthService] Supabase insert warning (falling back to local):', err.message);
+        console.error('[AuthService] Supabase student insert failed:', err.message);
+        throw new Error(`Database registration failed: ${err.message}. Please check your details and try again.`);
       }
     }
 
@@ -536,6 +537,37 @@ export class AuthService {
     return {
       success: true,
       message: 'Password updated successfully! You can now sign in with your new credentials.',
+    };
+  }
+
+  /**
+   * Separate Step: Verify 5-digit OTP without changing password yet
+   */
+  public static async verifyOtp(email: string, otp: string) {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanOtp = otp.trim();
+
+    if (!cleanEmail) {
+      throw new Error('Email is required.');
+    }
+    if (!cleanOtp || cleanOtp.length !== 5 || !/^\d{5}$/.test(cleanOtp)) {
+      throw new Error('Please enter a valid 5-digit verification code.');
+    }
+
+    const resetRecord = db.password_resets.find(
+      pr => pr.email && pr.email.toLowerCase() === cleanEmail &&
+            pr.otp === cleanOtp &&
+            !pr.used &&
+            new Date(pr.expires_at).getTime() > Date.now()
+    );
+
+    if (!resetRecord) {
+      throw new Error('Invalid or expired 5-digit verification code. Please request a new code.');
+    }
+
+    return {
+      success: true,
+      message: 'Verification code confirmed. You can now set your new password.',
     };
   }
 }

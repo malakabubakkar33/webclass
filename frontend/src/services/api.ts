@@ -100,6 +100,7 @@ export const api = {
   updateProfile: (data: any) => apiClient.put('/auth/profile', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) => apiClient.post('/auth/change-password', data),
   forgotPassword: (email: string) => apiClient.post('/auth/forgot-password', { email }),
+  verifyOtp: (data: { email: string; otp: string }) => apiClient.post('/auth/verify-otp', data),
   resetPassword: (data: { email: string; otp: string; newPassword: string; confirmPassword?: string }) =>
     apiClient.post('/auth/reset-password', data),
 

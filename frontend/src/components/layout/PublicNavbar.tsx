@@ -317,61 +317,26 @@ export const PublicNavbar: React.FC = () => {
         </div>
       </div>
 
-      {/* HORIZONTAL MEGA-MENU DROPDOWN ATTACHED DIRECTLY UNDER NAVBAR (NO SCROLLBAR) */}
+      {/* SLEEK, CLEAN COURSES DROPDOWN */}
       {coursesDropdownOpen && (
         <div
-          className="hidden md:block absolute top-full left-0 right-0 w-full bg-white border-b border-slate-200 shadow-2xl z-50 animate-in fade-in slide-in-from-top-1 duration-200 overflow-hidden"
+          className="hidden md:block absolute top-full left-0 right-0 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xl shadow-slate-900/10 z-50 animate-in fade-in slide-in-from-top-1 duration-200"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-            {/* Top Bar of Horizontal Mega-Menu */}
-            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center shadow-xs">
-                  <BookOpen className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-extrabold text-navy-900 tracking-tight">
-                      SMIT Web Development Curriculum
-                    </span>
-                    <span className="text-[10px] font-bold text-primary-700 bg-primary-50 border border-primary-200/60 px-2 py-0.5 rounded-full">
-                      {courses.length} Modules Available
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Click any course to open and learn in our classroom
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Link
-                  to="/courses"
-                  onClick={() => setCoursesDropdownOpen(false)}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 hover:text-primary-700 transition group"
-                >
-                  <span>View All Courses Page</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Purely HORIZONTAL Courses Grid - No images, No lock/access labels, Zero Scrollbars */}
-            <div className="grid grid-cols-4 gap-3 overflow-hidden">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            {/* Purely Course Cards Grid with titles & level tags */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {courses.slice(0, 8).map((course, idx) => (
                 <div
                   key={`${course.id}-${idx}`}
                   onClick={() => handleCourseClick(course.id)}
-                  className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/90 hover:bg-blue-50/90 hover:border-primary-400 hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between"
+                  className="p-3.5 rounded-2xl bg-slate-50/90 hover:bg-blue-50/90 border border-slate-200/80 hover:border-primary-400 hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between"
                 >
-                  {/* Course Title Only - Clear & Prominent */}
                   <h4 className="text-xs font-bold text-navy-900 group-hover:text-primary-600 transition-colors line-clamp-1 leading-snug">
                     {course.title}
                   </h4>
 
-                  {/* Level & Topics */}
                   <div className="flex items-center justify-between gap-1.5 mt-2.5 pt-2 border-t border-slate-200/60">
                     <span
                       className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${
@@ -392,22 +357,16 @@ export const PublicNavbar: React.FC = () => {
               ))}
             </div>
 
-            {/* Bottom Status Strip */}
-            <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1 text-slate-500 font-medium">
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  Practical Industry Curriculum
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1 text-slate-500 font-medium">
-                  <Layers className="w-3 h-3 text-primary-500" />
-                  Video Lessons & Code Repository
-                </span>
-              </div>
-              <span className="text-slate-400 font-medium">
-                Structured Web Development Class
-              </span>
+            {/* Clean View All link */}
+            <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-end">
+              <Link
+                to="/courses"
+                onClick={() => setCoursesDropdownOpen(false)}
+                className="inline-flex items-center gap-1.5 text-xs font-extrabold text-primary-600 hover:text-primary-700 transition group"
+              >
+                <span>Browse All Courses</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
         </div>

@@ -278,6 +278,20 @@ export class AuthController {
     }
   }
 
+  public static async verifyOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, otp } = req.body;
+      if (!email || !otp) {
+        res.status(400).json({ success: false, message: 'Email and 5-digit verification code are required.' });
+        return;
+      }
+      const result = await AuthService.verifyOtp(email, otp);
+      res.json(result);
+    } catch (err: any) {
+      res.status(400).json({ success: false, message: err.message || 'OTP verification failed.' });
+    }
+  }
+
   public static async resetPassword(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp, newPassword, confirmPassword } = req.body;

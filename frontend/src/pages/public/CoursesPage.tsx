@@ -95,7 +95,7 @@ export const CoursesPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full min-h-[85vh] bg-[#F8FAFC] py-12 sm:py-16">
+    <div className="w-full min-h-[75vh] bg-[#F8FAFC] pt-8 sm:pt-10 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto">

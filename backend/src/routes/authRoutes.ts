@@ -9,6 +9,7 @@ router.post('/login', AuthController.login);
 router.post('/signup', AuthController.signup);
 router.post('/logout', AuthController.logout);
 router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/verify-otp', AuthController.verifyOtp);
 router.post('/reset-password', AuthController.resetPassword);
 router.post('/upload-avatar', upload.single('avatar'), AuthController.uploadAvatar);
 router.get('/teacher-setup-status', AuthController.getTeacherSetupStatus);

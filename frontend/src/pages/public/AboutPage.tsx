@@ -144,7 +144,7 @@ export const AboutPage: React.FC = () => {
   ];
 
   return (
-    <div className="w-full bg-[#F8FAFC] py-14 sm:py-20">
+    <div className="w-full bg-[#F8FAFC] pt-8 sm:pt-10 pb-16 min-h-[75vh]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
         {/* ========================================================================= */}
         {/* 1. HEADER & OUR CLASS STORY */}

@@ -84,18 +84,18 @@ export const StudentsPage: React.FC = () => {
   }, [students, searchQuery]);
 
   return (
-    <div className="w-full bg-[#F8FAFC] py-14 sm:py-20 min-h-[85vh]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+    <div className="w-full bg-[#F8FAFC] pt-8 sm:pt-10 pb-16 min-h-[75vh]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-primary-600 text-xs font-bold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-primary-600 text-xs font-bold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
             Class Community
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-navy-900 tracking-tight leading-tight">
             Our Class Community
           </h1>
-          <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+          <p className="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed">
             Meet the students learning and building together in our SMIT Web Development class.
           </p>
         </div>
@@ -121,58 +121,55 @@ export const StudentsPage: React.FC = () => {
               </div>
             </Card>
           ) : (
-            <Card className="p-8 sm:p-12 bg-gradient-to-br from-white via-white to-blue-50/40 border border-slate-200/90 rounded-3xl shadow-sm">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-8 sm:gap-10">
-                {/* Teacher Photo */}
-                <div className="relative shrink-0">
-                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl overflow-hidden border-4 border-white shadow-xl shadow-primary-500/10 bg-slate-100">
-                    <img
-                      src={
-                        getMediaUrl(teacher?.avatarUrl) ||
-                        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'
-                      }
-                      alt={teacher?.fullName || 'Lead Instructor'}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-                      }}
-                    />
-                  </div>
-                  <div className="absolute -bottom-2 -right-2 bg-primary-600 text-white p-2 rounded-xl shadow-md">
-                    <GraduationCap className="w-5 h-5" />
-                  </div>
-                </div>
-
-                {/* Teacher Details */}
-                <div className="flex-1 text-center md:text-left space-y-3">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-200/60 text-primary-700 text-xs font-bold uppercase tracking-wider">
-                    <UserCheck className="w-3.5 h-3.5" />
-                    {teacher?.role || 'Lead Instructor & Admin'}
-                  </div>
-
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
-                    {teacher?.fullName || 'Prof. Alex Vance'}
-                  </h2>
-
-                  <p className="text-slate-600 text-base leading-relaxed max-w-3xl">
-                    {teacher?.bio ||
-                      'Leading our SMIT Web Development class with structured lessons, practical projects, code reviews, and continuous guidance.'}
-                  </p>
-
-                  <div className="pt-3 flex flex-wrap items-center justify-center md:justify-start gap-5 text-xs font-semibold text-slate-500">
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4 text-primary-600" />
-                      Class Days: Monday & Thursday
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                      Verified Classroom Administrator
-                    </span>
-                  </div>
+            <div className="bg-white border border-slate-200/90 rounded-3xl shadow-sm overflow-hidden flex flex-col md:flex-row items-stretch">
+              {/* Teacher Photo - Full Box Cover */}
+              <div className="relative w-full md:w-80 min-h-[260px] md:min-h-full shrink-0 bg-slate-100">
+                <img
+                  src={
+                    getMediaUrl(teacher?.avatarUrl) ||
+                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600'
+                  }
+                  alt={teacher?.fullName || 'Lead Instructor'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src =
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600';
+                  }}
+                />
+                <div className="absolute top-4 left-4 bg-primary-600/95 backdrop-blur-xs text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold flex items-center gap-1.5">
+                  <GraduationCap className="w-4 h-4" />
+                  <span>Lead Instructor</span>
                 </div>
               </div>
-            </Card>
+
+              {/* Teacher Details */}
+              <div className="flex-1 p-8 sm:p-10 text-center md:text-left space-y-3 flex flex-col justify-center">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-200/60 text-primary-700 text-xs font-bold uppercase tracking-wider w-fit mx-auto md:mx-0">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  {teacher?.role || 'Lead Instructor & Admin'}
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
+                  {teacher?.fullName || 'Prof. Alex Vance'}
+                </h2>
+
+                <p className="text-slate-600 text-base leading-relaxed max-w-3xl">
+                  {teacher?.bio ||
+                    'Leading our SMIT Web Development class with structured lessons, practical projects, code reviews, and continuous guidance.'}
+                </p>
+
+                <div className="pt-3 flex flex-wrap items-center justify-center md:justify-start gap-5 text-xs font-semibold text-slate-500">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-primary-600" />
+                    Class Days: Monday & Thursday
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    Verified Classroom Administrator
+                  </span>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
@@ -256,31 +253,36 @@ export const StudentsPage: React.FC = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className="p-6 text-center bg-white border border-slate-200/90 hover:border-primary-300 hover:shadow-xl transition-all duration-300 rounded-2xl flex flex-col items-center group">
-                    {/* Student Profile Image */}
-                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-slate-100 group-hover:border-primary-400 group-hover:scale-105 transition-all duration-200 mb-4 bg-slate-50">
+                  <div className="h-full bg-white border border-slate-200/90 hover:border-primary-400 hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden flex flex-col justify-between group">
+                    {/* Student Full Cover Photo Header */}
+                    <div className="relative w-full aspect-square overflow-hidden bg-slate-100">
                       <img
                         src={
                           getMediaUrl(student.avatarUrl) ||
                           `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`
                         }
                         alt={student.fullName}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`;
                         }}
                       />
+                      <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-700 shadow-2xs">
+                        Active
+                      </div>
                     </div>
 
-                    {/* Student Public Info ONLY */}
-                    <h3 className="text-base font-bold text-navy-900 group-hover:text-primary-600 transition-colors line-clamp-1 w-full">
-                      {student.fullName}
-                    </h3>
+                    {/* Student Public Info */}
+                    <div className="p-3.5 text-center flex flex-col justify-between flex-1">
+                      <h3 className="text-sm font-bold text-navy-900 group-hover:text-primary-600 transition-colors line-clamp-1 w-full">
+                        {student.fullName}
+                      </h3>
 
-                    <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50/80 text-primary-700 text-xs font-semibold">
-                      Roll: {student.rollNumber || 'Active Student'}
+                      <div className="mt-2 inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-blue-50/80 text-primary-700 text-[11px] font-semibold">
+                        SMIT ID: {student.rollNumber || 'Active Student'}
+                      </div>
                     </div>
-                  </Card>
+                  </div>
                 </motion.div>
               ))}
             </div>

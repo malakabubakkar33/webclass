@@ -130,7 +130,7 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 1. HERO SECTION WITH LARGE BACKGROUND IMAGE & LIGHT OVERLAY */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden border-b border-slate-200/80">
+      <section className="relative min-h-[72vh] flex items-center justify-center overflow-hidden border-b border-slate-200/80">
         {/* Large High-Quality Background Image (Modern Developer Workspace & Code) */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 scale-105"
@@ -145,13 +145,13 @@ export const HomePage: React.FC = () => {
         {/* Ambient subtle light glow shapes */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-tr from-primary-400/15 via-secondary-400/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-14 sm:pb-18 text-center">
           {/* Small Badge */}
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 border border-primary-200/60 shadow-xs mb-6"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 border border-primary-200/60 shadow-xs mb-5"
           >
             <Sparkles className="w-4 h-4 text-primary-600 animate-spin-slow" />
             <span className="text-xs font-bold uppercase tracking-wider text-primary-700">
@@ -166,9 +166,9 @@ export const HomePage: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-navy-900 tracking-tight leading-[1.1]"
           >
-            Learn. Practice. Build.
+            Master Modern Web Development.
             <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-primary-700 to-secondary-600">
-              Build Your Future With Web Development.
+              From Core Fundamentals to Full-Stack Engineering.
             </span>
           </motion.h1>
 
@@ -177,9 +177,9 @@ export const HomePage: React.FC = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal"
+            className="mt-5 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal"
           >
-            A dedicated learning platform for our SMIT Web Development class where students can learn modern web technologies, follow structured lessons, watch teacher-uploaded videos, and track their attendance and progress.
+            Official SMIT Web Development curriculum covering HTML5, CSS3, JavaScript ES6+, React, Node.js, and Supabase PostgreSQL with dedicated instructor guidance, hands-on assignments, and structured video lessons.
           </motion.p>
 
           {/* Action Buttons */}
@@ -454,9 +454,9 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 4. TEACHER SECTION: LEARN WITH DEDICATED GUIDANCE */}
       {/* ========================================================================= */}
-      <section className="py-20 bg-white border-y border-slate-200/80">
+      <section className="py-14 sm:py-16 bg-white border-y border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="text-center max-w-3xl mx-auto mb-10">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-secondary-600 text-xs font-bold uppercase tracking-wider mb-3">
               One Dedicated Instructor
             </div>
@@ -468,31 +468,30 @@ export const HomePage: React.FC = () => {
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-50/50 via-white to-purple-50/40 rounded-3xl border border-slate-200/90 p-8 sm:p-12 shadow-sm flex flex-col md:flex-row items-center gap-8 sm:gap-12">
-            {/* Teacher Profile Image */}
-            <div className="relative shrink-0">
-              <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-3xl overflow-hidden border-4 border-white shadow-xl shadow-primary-500/10">
-                <img
-                  src={
-                    teacher?.avatarUrl ||
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'
-                  }
-                  alt={teacher?.fullName || 'Teacher Profile'}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-                  }}
-                />
-              </div>
-              <div className="absolute -bottom-2 -right-2 bg-primary-600 text-white p-2 rounded-xl shadow-md">
-                <GraduationCap className="w-5 h-5" />
+          <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200/90 shadow-lg shadow-slate-200/50 overflow-hidden flex flex-col md:flex-row items-stretch">
+            {/* Teacher Profile Image - Full Box (No Box inside Box) */}
+            <div className="relative w-full md:w-80 min-h-[280px] md:min-h-full shrink-0 bg-slate-100">
+              <img
+                src={
+                  teacher?.avatarUrl ||
+                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600'
+                }
+                alt={teacher?.fullName || 'Teacher Profile'}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600';
+                }}
+              />
+              <div className="absolute top-4 left-4 bg-primary-600/95 backdrop-blur-xs text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold flex items-center gap-1.5">
+                <GraduationCap className="w-4 h-4" />
+                <span>Class Instructor</span>
               </div>
             </div>
 
             {/* Teacher Info */}
-            <div className="flex-1 text-center md:text-left space-y-3">
-              <Badge variant="primary" className="bg-primary-100/80 text-primary-800 font-bold border-none">
+            <div className="flex-1 p-8 sm:p-10 text-center md:text-left space-y-3 flex flex-col justify-center">
+              <Badge variant="primary" className="bg-primary-100/80 text-primary-800 font-bold border-none w-fit mx-auto md:mx-0">
                 {teacher?.role || 'Lead Instructor & Admin'}
               </Badge>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-navy-900">
@@ -520,8 +519,8 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 5. STUDENT COMMUNITY SECTION: GROWING TOGETHER */}
       {/* ========================================================================= */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+      <section className="py-14 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3">
               Class Cohort
@@ -568,61 +567,54 @@ export const HomePage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
               {students.slice(0, 6).map((student, idx) => (
                 <div key={student.id} className="relative group">
-                  {/* Card Container */}
-                  <Card className="h-full p-8 text-center bg-white border border-slate-200/90 group-hover:border-primary-400 group-hover:shadow-2xl group-hover:-translate-y-1.5 transition-all duration-300 rounded-3xl flex flex-col items-center justify-between relative overflow-hidden">
+                  {/* Card Container with Full-Box Photo (No Box inside Box) */}
+                  <div className="h-full bg-white border border-slate-200/90 group-hover:border-primary-400 group-hover:shadow-2xl group-hover:-translate-y-1.5 transition-all duration-300 rounded-3xl flex flex-col justify-between relative overflow-hidden">
                     {/* Top ambient subtle gradient glow */}
-                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 opacity-80 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 opacity-80 group-hover:opacity-100 transition-opacity z-10" />
 
-                    {/* Member sequence badge */}
-                    <div className="w-full flex items-center justify-between mb-4">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    {/* Student Full-Box Top Image */}
+                    <div className="relative w-full h-48 bg-slate-100 overflow-hidden">
+                      <img
+                        src={
+                          student.avatarUrl ||
+                          `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`
+                        }
+                        alt={student.fullName}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`;
+                        }}
+                      />
+                      <div className="absolute top-3 left-3 bg-navy-900/80 backdrop-blur-xs text-white px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                         Peer {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
+                      </div>
+                      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-700 shadow-xs flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         Active Cohort
-                      </span>
-                    </div>
-
-                    {/* Large Crystal Clear Student Avatar */}
-                    <div className="relative my-2">
-                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden border-4 border-white shadow-xl shadow-slate-200/70 group-hover:scale-105 group-hover:border-primary-100 transition-all duration-300 bg-slate-100 ring-2 ring-slate-100 group-hover:ring-primary-400/50">
-                        <img
-                          src={
-                            student.avatarUrl ||
-                            `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`
-                          }
-                          alt={student.fullName}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`;
-                          }}
-                        />
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 bg-primary-600 text-white p-1.5 rounded-xl shadow-md border-2 border-white">
-                        <CheckCircle2 className="w-4 h-4 text-white" />
                       </div>
                     </div>
 
-                    {/* Student Name & Crystal-Clear Course Name */}
-                    <div className="mt-4 space-y-2 w-full">
-                      <h3 className="text-lg sm:text-xl font-black text-navy-950 group-hover:text-primary-600 transition-colors truncate">
-                        {student.fullName}
-                      </h3>
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50/90 border border-primary-200/70 text-primary-800 text-xs font-bold shadow-2xs">
-                        <BookOpen className="w-3.5 h-3.5 text-primary-600" />
-                        <span>Web Development Course</span>
+                    {/* Student Info */}
+                    <div className="p-6 flex flex-col flex-1 justify-between text-left">
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-black text-navy-950 group-hover:text-primary-600 transition-colors truncate">
+                          {student.fullName}
+                        </h3>
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50/90 border border-primary-200/70 text-primary-800 text-xs font-bold shadow-2xs">
+                          <BookOpen className="w-3.5 h-3.5 text-primary-600" />
+                          <span>Web Development Course</span>
+                        </div>
+                      </div>
+
+                      {/* Roll Number Pill */}
+                      <div className="w-full mt-5 pt-4 border-t border-slate-100/90 flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-400">SMIT ID:</span>
+                        <span className="px-3 py-1 rounded-xl bg-blue-50/90 border border-primary-200/60 text-primary-700 text-xs font-bold shadow-xs">
+                          {student.rollNumber || 'Active Student'}
+                        </span>
                       </div>
                     </div>
-
-                    {/* Roll Number Pill & Connected Visual Line */}
-                    <div className="w-full mt-5 pt-4 border-t border-slate-100/90 flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-400">Class ID:</span>
-                      <span className="px-3 py-1 rounded-xl bg-blue-50/90 border border-primary-200/60 text-primary-700 text-xs font-bold shadow-xs">
-                        {student.rollNumber || 'Active Student'}
-                      </span>
-                    </div>
-                  </Card>
+                  </div>
 
                   {/* Horizontal connecting dot node for desktop between cards */}
                   {idx < Math.min(students.length, 6) - 1 && (idx + 1) % 3 !== 0 && (
@@ -642,7 +634,7 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 6. BOTTOM CALL TO ACTION */}
       {/* ========================================================================= */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 via-primary-700 to-secondary-700 text-white relative overflow-hidden">
+      <section className="py-14 sm:py-16 bg-gradient-to-r from-primary-600 via-primary-700 to-secondary-700 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px] opacity-10" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           <Badge className="bg-white/20 text-white border-none font-bold uppercase tracking-wider text-xs">
