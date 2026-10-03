@@ -182,6 +182,17 @@ export const TeacherCoursesPage: React.FC = () => {
             <Skeleton key={n} className="h-80" />
           ))}
         </div>
+      ) : courses.length === 0 ? (
+        <Card className="p-12 text-center bg-white rounded-3xl border border-slate-200/80 shadow-xs col-span-full">
+          <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-navy-900">No courses created yet</h3>
+          <p className="text-xs text-slate-500 mt-1 mb-4">
+            Start building your curriculum by clicking the button below to add your first course.
+          </p>
+          <Button onClick={() => setIsCreateOpen(true)} variant="primary" size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+            Add Your First Course
+          </Button>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (

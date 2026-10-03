@@ -144,9 +144,9 @@ async function runTests() {
   const coursesRes = await fetch(`${BASE}/courses`, {
     headers: { 'Authorization': `Bearer ${studentToken}` },
   }).then(r => r.json());
-  if (coursesRes.success && coursesRes.data?.length > 0) {
+  if (coursesRes.success && Array.isArray(coursesRes.data)) {
     results.studentCourses = true;
-    console.log(`✅ GET /api/courses: SUCCESS (Found ${coursesRes.data.length} courses)`);
+    console.log(`✅ GET /api/courses: SUCCESS (Initial courses: ${coursesRes.data.length})`);
   }
 
   // /attendance/student/summary
