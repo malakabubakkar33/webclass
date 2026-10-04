@@ -6,6 +6,7 @@ import { User, StudentProfile, TeacherProfile, PasswordReset } from '../models/t
 import { signToken, TokenPayload } from '../utils/jwt.js';
 import { NotificationService } from './notificationService.js';
 import { EmailService } from './emailService.js';
+import { StorageService } from './storageService.js';
 
 export interface StudentSignupInput {
   fullName: string;
@@ -238,6 +239,27 @@ export class AuthService {
       updated_at: new Date().toISOString(),
     };
 
+    let finalAvatarUrl = input.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(input.fullName)}`;
+
+    // Convert any direct base64 data URI to permanent Supabase Storage URL
+    if (finalAvatarUrl && finalAvatarUrl.startsWith('data:image/')) {
+      try {
+        const matches = finalAvatarUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+          const mimeType = matches[1];
+          const buffer = Buffer.from(matches[2], 'base64');
+          const ext = mimeType.split('/')[1] || 'jpg';
+          const destinationPath = `avatar-${uuidv4()}.${ext}`;
+          const uploaded = await StorageService.uploadBuffer('avatars', buffer, destinationPath, mimeType);
+          if (uploaded && uploaded.url) {
+            finalAvatarUrl = uploaded.url;
+          }
+        }
+      } catch (uploadErr) {
+        console.warn('[AuthService] Base64 avatar conversion warning:', uploadErr);
+      }
+    }
+
     const newProfile: StudentProfile = {
       id: uuidv4(),
       user_id: userId,
@@ -246,7 +268,7 @@ export class AuthService {
       email,
       mobile_number: input.mobileNumber.trim(),
       roll_number: rollNumber,
-      avatar_url: input.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(input.fullName)}`,
+      avatar_url: finalAvatarUrl,
       show_on_public_directory: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

@@ -192,33 +192,65 @@ class DatabaseStore {
     }, 100);
   }
 
+  private syncPromise: Promise<void> | null = null;
+  private lastSyncTime: number = 0;
+
+  public async ensureSynced(force = false): Promise<void> {
+    const now = Date.now();
+    if (!force && this.lastSyncTime > 0 && now - this.lastSyncTime < 15000) {
+      return;
+    }
+    if (this.syncPromise) {
+      return this.syncPromise;
+    }
+    this.syncPromise = this.syncWithSupabase()
+      .then(() => {
+        this.lastSyncTime = Date.now();
+      })
+      .finally(() => {
+        this.syncPromise = null;
+      });
+    return this.syncPromise;
+  }
+
   public async syncWithSupabase(): Promise<void> {
     const supabase = (await import('./supabase.js')).getSupabase();
     if (!supabase) return;
     try {
-      const [uRes, spRes, cRes, topRes, vRes, attRes, asRes] = await Promise.all([
+      const [uRes, spRes, tpRes, cRes, topRes, vRes, attRes, asRes, subRes, vpRes] = await Promise.all([
         supabase.from('users').select('*'),
         supabase.from('student_profiles').select('*'),
+        supabase.from('teacher_profiles').select('*'),
         supabase.from('courses').select('*'),
         supabase.from('topics').select('*'),
         supabase.from('videos').select('*'),
         supabase.from('attendance').select('*'),
         supabase.from('assignments').select('*'),
+        supabase.from('assignment_submissions').select('*'),
+        supabase.from('video_progress').select('*'),
       ]);
 
-      if (uRes.data) {
-        this.data.users = uRes.data as User[];
+      if (uRes.data && uRes.data.length > 0) {
+        const remoteUsers = uRes.data as User[];
+        const localTeacher = this.data.users.find(u => u.role === 'teacher');
+        if (localTeacher && !remoteUsers.some(u => u.id === localTeacher.id || u.role === 'teacher')) {
+          remoteUsers.push(localTeacher);
+        }
+        this.data.users = remoteUsers;
       }
       if (spRes.data) {
         this.data.student_profiles = spRes.data as StudentProfile[];
       }
-      if (cRes.data) {
+      if (tpRes.data && tpRes.data.length > 0) {
+        this.data.teacher_profiles = tpRes.data as TeacherProfile[];
+      }
+      if (cRes.data && cRes.data.length > 0) {
         this.data.courses = cRes.data as Course[];
       }
-      if (topRes.data) {
+      if (topRes.data && topRes.data.length > 0) {
         this.data.topics = topRes.data as Topic[];
       }
-      if (vRes.data) {
+      if (vRes.data && vRes.data.length > 0) {
         this.data.videos = vRes.data as Video[];
       }
       if (attRes.data) {
@@ -227,9 +259,16 @@ class DatabaseStore {
       if (asRes.data) {
         this.data.assignments = asRes.data as Assignment[];
       }
-      console.log(`[DatabaseStore] Synced with Supabase: ${this.data.users.length} users, ${this.data.courses.length} courses.`);
+      if (subRes.data) {
+        this.data.assignment_submissions = subRes.data as AssignmentSubmission[];
+      }
+      if (vpRes.data) {
+        this.data.video_progress = vpRes.data as VideoProgress[];
+      }
+      this.lastSyncTime = Date.now();
+      console.log(`[DatabaseStore] Synced with Supabase: ${this.data.users.length} users, ${this.data.student_profiles.length} student profiles, ${this.data.courses.length} courses.`);
     } catch (err: any) {
-      // Non-blocking notice
+      console.warn('[DatabaseStore] Supabase sync warning:', err?.message || err);
     }
   }
 

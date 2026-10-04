@@ -44,27 +44,29 @@ export class StorageService {
       }
     }
 
-    // Local disk fallback (if uploads folder is writable)
-    try {
-      const isVercel = Boolean(process.env.VERCEL);
-      const rootDir = isVercel ? '/tmp/uploads' : path.resolve(process.cwd(), 'uploads');
-      const dirPath = path.join(rootDir, bucket);
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
+    // Local disk fallback (only for persistent local dev environments, NEVER for Vercel serverless)
+    const isVercel = Boolean(process.env.VERCEL);
+    if (!isVercel) {
+      try {
+        const rootDir = path.resolve(process.cwd(), 'uploads');
+        const dirPath = path.join(rootDir, bucket);
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true });
+        }
+        const localFilePath = path.join(dirPath, destinationPath);
+        fs.writeFileSync(localFilePath, buffer);
+        
+        const localUrl = `/uploads/${bucket}/${destinationPath}`;
+        return {
+          url: localUrl,
+          storagePath: `local/${bucket}/${destinationPath}`,
+        };
+      } catch (localErr) {
+        console.warn('[StorageService] Local disk write fallback failed, using inline Data URI:', localErr);
       }
-      const localFilePath = path.join(dirPath, destinationPath);
-      fs.writeFileSync(localFilePath, buffer);
-      
-      const localUrl = `/uploads/${bucket}/${destinationPath}`;
-      return {
-        url: localUrl,
-        storagePath: `local/${bucket}/${destinationPath}`,
-      };
-    } catch (localErr) {
-      console.warn('[StorageService] Local disk write fallback failed, using inline Data URI:', localErr);
     }
 
-    // Final resilient fallback: Base64 Data URI so the image NEVER fails
+    // Final resilient fallback: Base64 Data URI so the image NEVER fails or disappears on serverless
     const base64 = buffer.toString('base64');
     return {
       url: `data:${mimeType};base64,${base64}`,

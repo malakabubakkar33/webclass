@@ -6,6 +6,7 @@ import path from 'path';
 import apiRoutes from './routes/index.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { ENV } from './config/env.js';
+import { db } from './config/database.js';
 
 const app = express();
 
@@ -73,6 +74,16 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     documentation: '/api/health',
   });
+});
+
+// Ensure database is freshly synced with Supabase PostgreSQL
+app.use(async (req, res, next) => {
+  try {
+    await db.ensureSynced();
+  } catch (e) {
+    // Non-blocking fallback
+  }
+  next();
 });
 
 // Mount API Routes (Both /api and / to support all serverless reverse proxy environments)

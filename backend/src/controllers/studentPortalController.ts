@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { db } from '../config/database.js';
 import { AuthenticatedRequest } from '../middlewares/authMiddleware.js';
+import { SupabaseDbService } from '../services/supabaseDbService.js';
 
 export class StudentPortalController {
   /**
@@ -15,8 +16,33 @@ export class StudentPortalController {
       }
 
       const studentId = req.user.userId;
-      const profile = db.student_profiles.find((p) => p.user_id === studentId);
-      const user = db.users.find((u) => u.id === studentId);
+      let profile = db.student_profiles.find((p) => p.user_id === studentId);
+      let user = db.users.find((u) => u.id === studentId);
+
+      if ((!profile || !user) && SupabaseDbService.isConnected()) {
+        try {
+          if (!profile) {
+            const sp = await SupabaseDbService.getStudentProfile(studentId);
+            if (sp) {
+              profile = sp;
+              if (!db.student_profiles.some(p => p.user_id === sp.user_id)) {
+                db.student_profiles.push(sp);
+              }
+            }
+          }
+          if (!user) {
+            const u = await SupabaseDbService.getUserById(studentId);
+            if (u) {
+              user = u;
+              if (!db.users.some(usr => usr.id === u.id)) {
+                db.users.push(u);
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('[StudentPortalController] Supabase profile fetch fallback notice:', e);
+        }
+      }
 
       const publishedCourses = db.courses.filter((c) => c.is_published);
       const publishedCourseIds = new Set(publishedCourses.map((c) => c.id));
@@ -189,9 +215,9 @@ export class StudentPortalController {
         data: {
           student: {
             id: studentId,
-            fullName: profile ? profile.full_name : user?.username,
-            rollNumber: profile ? profile.roll_number : 'STUDENT',
-            avatarUrl: profile ? profile.avatar_url : '',
+            fullName: profile ? profile.full_name : (user?.username || req.user.username || 'Enrolled Student'),
+            rollNumber: profile?.roll_number || 'STUDENT',
+            avatarUrl: profile?.avatar_url || (profile?.full_name ? `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(profile.full_name)}` : ''),
           },
           instructor,
           stats: {
