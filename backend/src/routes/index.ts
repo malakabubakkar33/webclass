@@ -8,6 +8,7 @@ import studentRoutes from './studentRoutes.js';
 import teacherRoutes from './teacherRoutes.js';
 import notificationRoutes from './notificationRoutes.js';
 import assignmentRoutes from './assignmentRoutes.js';
+import bunnyRoutes from './bunnyRoutes.js';
 
 import publicRoutes from './publicRoutes.js';
 
@@ -23,6 +24,7 @@ router.use('/students', studentRoutes);
 router.use('/teacher', teacherRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/assignments', assignmentRoutes);
+router.use('/bunny', bunnyRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

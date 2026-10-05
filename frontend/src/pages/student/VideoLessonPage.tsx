@@ -20,11 +20,19 @@ import {
   Sparkles,
   HardDrive,
   ExternalLink,
+  Zap,
+  Video as VideoIcon,
 } from 'lucide-react';
 import {
   isGoogleDriveUrl,
   getGoogleDrivePreviewUrl,
   openVideoInGoogleDrive,
+  isBunnyUrl,
+  getBunnyEmbedUrl,
+  isYouTubeUrl,
+  getYouTubeEmbedUrl,
+  getVideoPlatformType,
+  Youtube,
 } from '../../utils/driveUtils.js';
 
 export const VideoLessonPage: React.FC = () => {
@@ -174,63 +182,159 @@ export const VideoLessonPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Video Player & Details */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Google Drive Status & Direct Open Banner */}
-          <div className="bg-gradient-to-r from-amber-500/10 via-amber-50 to-orange-50/50 border border-amber-200/90 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <HardDrive className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-xs sm:text-sm font-bold text-navy-900">
-                    {isGoogleDriveUrl(video.video_url) ? 'Google Drive Cloud Stream' : 'Cloud Video Stream'}
-                  </h4>
-                  <Badge variant={isGoogleDriveUrl(video.video_url) ? 'amber' : 'blue'} size="sm">
-                    {isGoogleDriveUrl(video.video_url) ? '0-Byte Supabase Storage' : 'Fast Play'}
-                  </Badge>
+          {/* Universal Video Cloud Stream Status & Direct Action Banner */}
+          {(() => {
+            const platform = getVideoPlatformType(video.video_url);
+
+            if (platform === 'bunny') {
+              return (
+                <div className="bg-gradient-to-r from-orange-500/10 via-amber-50 to-orange-50/50 border border-orange-200/90 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <Zap className="w-5 h-5 fill-current" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-bold text-navy-900">Bunny.net High-Speed Video CDN</h4>
+                        <Badge variant="amber" size="sm">0-Byte Database Storage</Badge>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Streamed via Bunny.net enterprise video network without consuming Supabase bandwidth.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => window.open(video.video_url, '_blank')}
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 w-full sm:w-auto text-orange-700 border-orange-300 hover:bg-orange-50"
+                    rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
+                  >
+                    Open Stream ↗
+                  </Button>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  {isGoogleDriveUrl(video.video_url)
-                    ? 'Streamed directly from Google Drive cloud to protect Supabase database storage.'
-                    : 'Open in an external Google Drive player for smooth buffer-free watching.'}
-                </p>
-              </div>
-            </div>
+              );
+            }
 
-            <Button
-              onClick={() => openVideoInGoogleDrive(video.video_url)}
-              variant="primary"
-              size="sm"
-              className="bg-amber-600 hover:bg-amber-700 text-white shadow-xs shrink-0 w-full sm:w-auto"
-              rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
-            >
-              Open in Google Drive ↗
-            </Button>
-          </div>
+            if (platform === 'youtube') {
+              return (
+                <div className="bg-gradient-to-r from-red-500/10 via-rose-50 to-orange-50/40 border border-red-200/90 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <Youtube className="w-5 h-5 fill-current" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-bold text-navy-900">YouTube HD Class Lecture</h4>
+                        <Badge variant="emerald" size="sm">1-Hour+ Full HD</Badge>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Permanent free storage with multi-speed controls (0.75x–2x) and full 1080p resolution.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => window.open(video.video_url, '_blank')}
+                    variant="primary"
+                    size="sm"
+                    className="bg-red-600 hover:bg-red-700 text-white shadow-xs shrink-0 w-full sm:w-auto"
+                    rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
+                  >
+                    Watch on YouTube ↗
+                  </Button>
+                </div>
+              );
+            }
 
-          {/* Main Video Player (Drive Iframe or HTML5 Video) */}
+            if (platform === 'drive') {
+              return (
+                <div className="bg-gradient-to-r from-amber-500/10 via-amber-50 to-orange-50/50 border border-amber-200/90 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <HardDrive className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-bold text-navy-900">Google Drive Cloud Stream</h4>
+                        <Badge variant="amber" size="sm">0-Byte Supabase Storage</Badge>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Streamed directly from Google Drive cloud to protect Supabase database storage.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => openVideoInGoogleDrive(video.video_url)}
+                    variant="primary"
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700 text-white shadow-xs shrink-0 w-full sm:w-auto"
+                    rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
+                  >
+                    Open in Google Drive ↗
+                  </Button>
+                </div>
+              );
+            }
+
+            return null;
+          })()}
+
+          {/* Main Video Player Container (Bunny, YouTube, Drive, or HTML5) */}
           <div className="relative rounded-3xl overflow-hidden bg-black shadow-2xl shadow-blue-900/15 aspect-video border border-slate-900">
-            {isGoogleDriveUrl(video.video_url) ? (
-              <iframe
-                src={getGoogleDrivePreviewUrl(video.video_url) || video.video_url}
-                title={video.title}
-                allow="autoplay; encrypted-media; fullscreen"
-                allowFullScreen
-                className="w-full h-full border-0"
-              />
-            ) : (
-              <video
-                ref={videoRef}
-                src={video.video_url}
-                controls
-                onEnded={handleVideoEnded}
-                className="w-full h-full object-contain"
-                poster={video.thumbnail_url || course.thumbnail_url}
-                playsInline
-              >
-                Your browser does not support the video tag.
-              </video>
-            )}
+            {(() => {
+              const platform = getVideoPlatformType(video.video_url);
+
+              if (platform === 'bunny') {
+                return (
+                  <iframe
+                    src={getBunnyEmbedUrl(video.video_url)}
+                    title={video.title}
+                    loading="lazy"
+                    allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+                    allowFullScreen
+                    className="w-full h-full border-0"
+                  />
+                );
+              }
+
+              if (platform === 'youtube') {
+                return (
+                  <iframe
+                    src={getYouTubeEmbedUrl(video.video_url) || ''}
+                    title={video.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full border-0"
+                  />
+                );
+              }
+
+              if (platform === 'drive') {
+                return (
+                  <iframe
+                    src={getGoogleDrivePreviewUrl(video.video_url) || video.video_url}
+                    title={video.title}
+                    allow="autoplay; encrypted-media; fullscreen"
+                    allowFullScreen
+                    className="w-full h-full border-0"
+                  />
+                );
+              }
+
+              return (
+                <video
+                  ref={videoRef}
+                  src={video.video_url}
+                  controls
+                  onEnded={handleVideoEnded}
+                  className="w-full h-full object-contain"
+                  poster={video.thumbnail_url || course.thumbnail_url}
+                  playsInline
+                >
+                  Your browser does not support the video tag.
+                </video>
+              );
+            })()}
           </div>
 
           {/* Video Metadata & Actions Card */}
@@ -329,12 +433,34 @@ export const VideoLessonPage: React.FC = () => {
                       <p className="text-[10px] text-slate-400 truncate">
                         {item.topicTitle}
                       </p>
-                      {isGoogleDriveUrl(item.video_url) && (
-                        <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 rounded border border-amber-200/60 inline-flex items-center gap-0.5">
-                          <HardDrive className="w-2.5 h-2.5" />
-                          Drive
-                        </span>
-                      )}
+                      {(() => {
+                        const plat = getVideoPlatformType(item.video_url);
+                        if (plat === 'bunny') {
+                          return (
+                            <span className="text-[9px] font-bold text-orange-700 bg-orange-50 px-1 rounded border border-orange-200/60 inline-flex items-center gap-0.5">
+                              <Zap className="w-2.5 h-2.5 text-orange-500 fill-current" />
+                              Bunny
+                            </span>
+                          );
+                        }
+                        if (plat === 'youtube') {
+                          return (
+                            <span className="text-[9px] font-bold text-red-700 bg-red-50 px-1 rounded border border-red-200/60 inline-flex items-center gap-0.5">
+                              <Youtube className="w-2.5 h-2.5 text-red-600 fill-current" />
+                              YouTube
+                            </span>
+                          );
+                        }
+                        if (plat === 'drive') {
+                          return (
+                            <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 rounded border border-amber-200/60 inline-flex items-center gap-0.5">
+                              <HardDrive className="w-2.5 h-2.5" />
+                              Drive
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                   </div>
 

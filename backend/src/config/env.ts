@@ -48,4 +48,5 @@ export const ENV = {
   FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID || 'smit-f947b',
   FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL || '',
   FIREBASE_PRIVATE_KEY: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+  BUNNY_API_KEY: process.env.BUNNY_API_KEY || '9d8e0bd0-7e6f-4ab6-9205-4d4771da3019d6256487-73e0-4496-84eb-1ec0f1c31085',
 };

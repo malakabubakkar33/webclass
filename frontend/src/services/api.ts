@@ -140,6 +140,9 @@ export const api = {
     apiClient.post(`/videos/${videoId}/progress`, data),
   deleteVideo: (id: string) => apiClient.delete(`/videos/${id}`),
 
+  // Bunny.net Video Storage
+  getBunnyStatus: () => apiClient.get('/bunny/status'),
+
   // Attendance
   getStudentAttendance: (studentId?: string) =>
     apiClient.get(studentId ? `/attendance/student/${studentId}` : '/attendance/student/summary'),

@@ -26,12 +26,20 @@ import {
   CheckCircle2,
   HardDrive,
   ExternalLink,
+  Zap,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isGoogleDriveUrl,
   extractGoogleDriveFileId,
   openVideoInGoogleDrive,
+  isBunnyUrl,
+  getBunnyEmbedUrl,
+  isYouTubeUrl,
+  extractYouTubeId,
+  getYouTubeThumbnail,
+  getVideoPlatformType,
+  Youtube,
 } from '../../utils/driveUtils.js';
 
 export const TeacherCourseDetailsPage: React.FC = () => {
@@ -60,12 +68,15 @@ export const TeacherCourseDetailsPage: React.FC = () => {
   const [videoTitle, setVideoTitle] = useState('');
   const [videoDesc, setVideoDesc] = useState('');
   const [videoDuration, setVideoDuration] = useState('15:00');
-  const [videoSourceType, setVideoSourceType] = useState<'drive' | 'file'>('drive');
+  const [videoSourceType, setVideoSourceType] = useState<'bunny' | 'youtube' | 'drive' | 'file'>('youtube');
+  const [youtubeLink, setYoutubeLink] = useState('');
+  const [bunnyLink, setBunnyLink] = useState('');
   const [driveLink, setDriveLink] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [videoUrlFallback, setVideoUrlFallback] = useState('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [bunnyStatus, setBunnyStatus] = useState<any>(null);
 
   // Edit Video Modal
   const [isEditVideoOpen, setIsEditVideoOpen] = useState(false);
@@ -176,8 +187,34 @@ export const TeacherCourseDetailsPage: React.FC = () => {
     try {
       let finalVideoUrl = videoUrlFallback;
       let finalStoragePath = '';
+      let finalThumbnailUrl = courseData.course.thumbnail_url;
 
-      if (videoSourceType === 'drive') {
+      if (videoSourceType === 'youtube') {
+        if (!youtubeLink.trim()) {
+          error('Please provide a YouTube video URL');
+          setIsUploading(false);
+          return;
+        }
+        const ytid = extractYouTubeId(youtubeLink.trim());
+        if (!ytid) {
+          error('Please provide a valid YouTube URL (e.g. https://youtu.be/... or watch?v=...)');
+          setIsUploading(false);
+          return;
+        }
+        finalVideoUrl = youtubeLink.trim();
+        finalThumbnailUrl = getYouTubeThumbnail(youtubeLink.trim()) || finalThumbnailUrl;
+        finalStoragePath = '';
+        setUploadProgress(70);
+      } else if (videoSourceType === 'bunny') {
+        if (!bunnyLink.trim()) {
+          error('Please provide a Bunny.net Stream or CDN link');
+          setIsUploading(false);
+          return;
+        }
+        finalVideoUrl = bunnyLink.trim();
+        finalStoragePath = '';
+        setUploadProgress(70);
+      } else if (videoSourceType === 'drive') {
         if (!driveLink.trim()) {
           error('Please provide a Google Drive video link');
           setIsUploading(false);
@@ -210,13 +247,17 @@ export const TeacherCourseDetailsPage: React.FC = () => {
         description: videoDesc,
         videoUrl: finalVideoUrl,
         storagePath: finalStoragePath,
-        thumbnailUrl: courseData.course.thumbnail_url,
+        thumbnailUrl: finalThumbnailUrl,
         duration: videoDuration,
       });
 
       setUploadProgress(100);
       success(
-        videoSourceType === 'drive'
+        videoSourceType === 'youtube'
+          ? 'YouTube 1-hour lecture published! Permanent free 1080p stream active.'
+          : videoSourceType === 'bunny'
+          ? 'Bunny.net video CDN lesson published! Fast edge streaming active.'
+          : videoSourceType === 'drive'
           ? 'Google Drive video lesson published! Supabase storage is preserved.'
           : 'Video lesson uploaded and published!',
         'Lesson Created 🎉'
@@ -225,6 +266,8 @@ export const TeacherCourseDetailsPage: React.FC = () => {
       setIsUploadVideoOpen(false);
       setVideoTitle('');
       setVideoDesc('');
+      setYoutubeLink('');
+      setBunnyLink('');
       setDriveLink('');
       setSelectedFile(null);
       setUploadProgress(0);
@@ -525,16 +568,38 @@ export const TeacherCourseDetailsPage: React.FC = () => {
                               </div>
 
                               <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                                {isGoogleDriveUrl(vid.video_url) ? (
-                                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80 inline-flex items-center gap-1">
-                                    <HardDrive className="w-3 h-3 text-amber-600" />
-                                    <span className="hidden sm:inline">Drive</span>
-                                  </span>
-                                ) : (
-                                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 hidden sm:inline-block">
-                                    Direct
-                                  </span>
-                                )}
+                                {(() => {
+                                  const plat = getVideoPlatformType(vid.video_url);
+                                  if (plat === 'bunny') {
+                                    return (
+                                      <span className="text-[10px] font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200/80 inline-flex items-center gap-1">
+                                        <Zap className="w-3 h-3 text-orange-500 fill-current" />
+                                        <span className="hidden sm:inline">Bunny</span>
+                                      </span>
+                                    );
+                                  }
+                                  if (plat === 'youtube') {
+                                    return (
+                                      <span className="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200/80 inline-flex items-center gap-1">
+                                        <Youtube className="w-3 h-3 text-red-600 fill-current" />
+                                        <span className="hidden sm:inline">YouTube</span>
+                                      </span>
+                                    );
+                                  }
+                                  if (plat === 'drive') {
+                                    return (
+                                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80 inline-flex items-center gap-1">
+                                        <HardDrive className="w-3 h-3 text-amber-600" />
+                                        <span className="hidden sm:inline">Drive</span>
+                                      </span>
+                                    );
+                                  }
+                                  return (
+                                    <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 hidden sm:inline-block">
+                                      Direct
+                                    </span>
+                                  );
+                                })()}
 
                                 <span className="text-[11px] font-medium text-slate-400 hidden sm:flex items-center gap-1">
                                   <Clock className="w-3 h-3" />
@@ -723,40 +788,182 @@ export const TeacherCourseDetailsPage: React.FC = () => {
 
           {/* Video Hosting Source Switcher */}
           <div className="space-y-2 text-left">
-            <label className="block text-xs font-semibold text-navy-700 uppercase tracking-wide">
-              Video Hosting Source
-            </label>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-navy-700 uppercase tracking-wide">
+                Video Storage & Hosting Platform
+              </label>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/80">
+                0-Byte Supabase Storage
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 bg-slate-100 rounded-xl">
               <button
                 type="button"
-                onClick={() => setVideoSourceType('drive')}
-                className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                  videoSourceType === 'drive'
-                    ? 'bg-white text-primary-700 shadow-xs'
+                onClick={() => setVideoSourceType('youtube')}
+                className={`py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                  videoSourceType === 'youtube'
+                    ? 'bg-red-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-navy-900'
                 }`}
               >
-                <HardDrive className="w-3.5 h-3.5 text-amber-500" />
-                <span>Google Drive (0 Storage)</span>
+                <Youtube className="w-3.5 h-3.5 fill-current" />
+                <span>YouTube (1h+)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setVideoSourceType('bunny')}
+                className={`py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                  videoSourceType === 'bunny'
+                    ? 'bg-orange-500 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-navy-900'
+                }`}
+              >
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                <span>Bunny.net</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setVideoSourceType('drive')}
+                className={`py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                  videoSourceType === 'drive'
+                    ? 'bg-amber-500 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-navy-900'
+                }`}
+              >
+                <HardDrive className="w-3.5 h-3.5" />
+                <span>Google Drive</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setVideoSourceType('file')}
-                className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                className={`py-2 px-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                   videoSourceType === 'file'
-                    ? 'bg-white text-primary-700 shadow-xs'
+                    ? 'bg-primary-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-navy-900'
                 }`}
               >
-                <FileVideo className="w-3.5 h-3.5 text-primary-600" />
-                <span>Upload Video File</span>
+                <FileVideo className="w-3.5 h-3.5" />
+                <span>File Upload</span>
               </button>
             </div>
           </div>
 
-          {/* Google Drive Option */}
-          {videoSourceType === 'drive' ? (
+          {/* 1. YOUTUBE UNLISTED OPTION (BEST FOR 1-HOUR+ LECTURES) */}
+          {videoSourceType === 'youtube' && (
+            <div className="space-y-3 p-4 bg-red-50/70 border border-red-200/80 rounded-2xl text-left">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <Youtube className="w-4 h-4 fill-current" />
+                </div>
+                <div>
+                  <h5 className="text-xs font-bold text-navy-900">
+                    YouTube Unlisted (Best for 1-Hour+ Full Lectures • Free & Permanent)
+                  </h5>
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    Unlimited free 1080p cloud storage. Zero database bandwidth used. Students get speed controls (0.75x–2x).
+                  </p>
+                </div>
+              </div>
+
+              <Input
+                label="YouTube Video Link (Watch or Share URL)"
+                placeholder="https://youtu.be/... or https://www.youtube.com/watch?v=..."
+                value={youtubeLink}
+                onChange={(e) => setYoutubeLink(e.target.value)}
+                required
+              />
+
+              {youtubeLink.trim() && (
+                <div className="pt-1">
+                  {extractYouTubeId(youtubeLink) ? (
+                    <div className="flex items-center gap-3 p-2 bg-white rounded-xl border border-red-200">
+                      <img
+                        src={getYouTubeThumbnail(youtubeLink) || ''}
+                        alt="Preview"
+                        className="w-16 h-10 object-cover rounded-lg shrink-0"
+                      />
+                      <span className="text-[11px] font-bold text-emerald-700 inline-flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        Valid YouTube Lecture (Video ID: {extractYouTubeId(youtubeLink)})
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-[11px] font-medium text-red-800 bg-red-100/70 px-2 py-0.5 rounded-lg inline-block">
+                      Please enter a valid YouTube video link.
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className="p-3 bg-white/80 rounded-xl border border-red-200/60 text-[11px] text-slate-600 space-y-1">
+                <p className="font-bold text-navy-900">How to keep video private/accessible to students:</p>
+                <ol className="list-decimal list-inside space-y-0.5 text-slate-500">
+                  <li>Upload your 1-hour class lecture to YouTube.</li>
+                  <li>In Visibility, set to <b>Unlisted</b> (it will NOT be public or searchable on YouTube).</li>
+                  <li>Copy the video link and paste it above. Students watch it inside this portal!</li>
+                </ol>
+              </div>
+            </div>
+          )}
+
+          {/* 2. BUNNY.NET STREAM OPTION */}
+          {videoSourceType === 'bunny' && (
+            <div className="space-y-3 p-4 bg-orange-50/70 border border-orange-200/80 rounded-2xl text-left">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <Zap className="w-4 h-4 fill-current" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h5 className="text-xs font-bold text-navy-900">Bunny.net Stream & Video CDN</h5>
+                    <span className="text-[10px] font-bold text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded">
+                      API Configured
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    Fast global edge delivery network. 0 bytes consumed on Supabase.
+                  </p>
+                </div>
+              </div>
+
+              <Input
+                label="Bunny Stream Embed URL or CDN Link"
+                placeholder="https://iframe.mediadelivery.net/embed/LIBRARY_ID/VIDEO_ID"
+                value={bunnyLink}
+                onChange={(e) => setBunnyLink(e.target.value)}
+                required
+              />
+
+              {bunnyLink.trim() && (
+                <div className="pt-1">
+                  {isBunnyUrl(bunnyLink) ? (
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-1 rounded-lg inline-flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      Valid Bunny.net Stream CDN URL
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-medium text-orange-800 bg-orange-100/70 px-2 py-0.5 rounded-lg inline-block">
+                      Paste a mediadelivery.net embed URL or b-cdn.net stream link.
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className="p-3 bg-white/80 rounded-xl border border-orange-200/60 text-[11px] text-slate-600 space-y-1">
+                <p className="font-bold text-navy-900">Bunny.net API Key Info:</p>
+                <p className="text-slate-500">
+                  Your Bunny API Key (<code className="text-orange-700 bg-orange-100 px-1 rounded">9d8e0bd0...1085</code>) is configured in backend environment. You can paste any Bunny Stream embed URL or CDN link directly.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* 3. GOOGLE DRIVE OPTION */}
+          {videoSourceType === 'drive' && (
             <div className="space-y-3 p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-left">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
@@ -764,7 +971,7 @@ export const TeacherCourseDetailsPage: React.FC = () => {
                 </div>
                 <div>
                   <h5 className="text-xs font-bold text-navy-900">
-                    Google Drive Stream (Recommended)
+                    Google Drive Stream (Cloud Storage)
                   </h5>
                   <p className="text-[11px] text-slate-600 mt-0.5">
                     Saves Supabase storage limit (0 MB used). Streams fast directly from Google.
@@ -804,8 +1011,10 @@ export const TeacherCourseDetailsPage: React.FC = () => {
                 </ol>
               </div>
             </div>
-          ) : (
-            /* File Upload Selector */
+          )}
+
+          {/* 4. FILE UPLOAD OPTION */}
+          {videoSourceType === 'file' && (
             <div className="space-y-1.5 text-left">
               <label className="block text-xs font-semibold text-navy-700 uppercase tracking-wide">
                 Video File (MP4, WebM, MKV)
@@ -823,7 +1032,7 @@ export const TeacherCourseDetailsPage: React.FC = () => {
                   className="text-xs text-navy-700 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
                 />
                 <p className="text-[11px] text-slate-400 mt-1">
-                  {selectedFile ? `Selected: ${selectedFile.name} (${Math.round(selectedFile.size / 1024 / 1024)} MB)` : 'Or leave empty to use sample educational stream URL'}
+                  {selectedFile ? `Selected: ${selectedFile.name} (${Math.round(selectedFile.size / 1024 / 1024)} MB)` : 'Note: For 1-hour lectures (>200MB), YouTube Unlisted or Bunny is recommended to save database storage.'}
                 </p>
               </div>
             </div>
@@ -861,20 +1070,26 @@ export const TeacherCourseDetailsPage: React.FC = () => {
               size="sm"
               isLoading={isUploading}
             >
-              {videoSourceType === 'drive' ? 'Save Google Drive Lesson' : 'Upload & Publish Video'}
+              {videoSourceType === 'youtube'
+                ? 'Save YouTube Lecture'
+                : videoSourceType === 'bunny'
+                ? 'Save Bunny.net Lesson'
+                : videoSourceType === 'drive'
+                ? 'Save Google Drive Lesson'
+                : 'Upload & Publish Video'}
             </Button>
           </div>
         </form>
       </Modal>
 
-      {/* Edit Video Modal (Update Title / Drive Link) */}
+      {/* Edit Video Modal (Update Title / YouTube / Bunny / Drive Link) */}
       <Modal
         isOpen={isEditVideoOpen}
         onClose={() => {
           if (!isSavingVideo) setIsEditVideoOpen(false);
         }}
         title="Edit Video Lesson & Stream URL"
-        description="Update lesson details or switch hosting to Google Drive to conserve Supabase storage."
+        description="Update lesson details or switch hosting to YouTube, Bunny.net, or Google Drive to conserve Supabase storage."
         maxWidth="md"
       >
         <form onSubmit={handleEditVideo} className="space-y-4">
@@ -899,24 +1114,45 @@ export const TeacherCourseDetailsPage: React.FC = () => {
 
           <div className="space-y-1.5 text-left">
             <label className="block text-xs font-semibold text-navy-700 uppercase tracking-wide">
-              Video URL (Google Drive Share Link or Video URL)
+              Video URL (YouTube, Bunny.net, Google Drive, or Video Stream)
             </label>
             <Input
-              placeholder="Paste Google Drive share link (https://drive.google.com/file/d/...)"
+              placeholder="Paste YouTube, Bunny.net, or Google Drive link"
               value={editVideoUrl}
               onChange={(e) => setEditVideoUrl(e.target.value)}
               required
             />
-            {editVideoUrl.trim() && isGoogleDriveUrl(editVideoUrl) ? (
-              <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 inline-flex items-center gap-1 mt-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                Google Drive embed supported (File ID: {extractGoogleDriveFileId(editVideoUrl)})
-              </span>
-            ) : (
-              <p className="text-[11px] text-slate-400 mt-1">
-                Paste a Google Drive link to enable 0-byte streaming directly from Drive.
-              </p>
-            )}
+            {editVideoUrl.trim() && (() => {
+              if (isYouTubeUrl(editVideoUrl)) {
+                return (
+                  <span className="text-[11px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200 inline-flex items-center gap-1 mt-1">
+                    <Youtube className="w-3.5 h-3.5 text-red-600 fill-current" />
+                    YouTube Video Detected (ID: {extractYouTubeId(editVideoUrl)})
+                  </span>
+                );
+              }
+              if (isBunnyUrl(editVideoUrl)) {
+                return (
+                  <span className="text-[11px] font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 inline-flex items-center gap-1 mt-1">
+                    <Zap className="w-3.5 h-3.5 text-orange-500 fill-current" />
+                    Bunny.net Stream CDN Detected
+                  </span>
+                );
+              }
+              if (isGoogleDriveUrl(editVideoUrl)) {
+                return (
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 inline-flex items-center gap-1 mt-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    Google Drive embed supported (File ID: {extractGoogleDriveFileId(editVideoUrl)})
+                  </span>
+                );
+              }
+              return (
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Paste a YouTube, Bunny, or Google Drive link to enable 0-byte streaming.
+                </p>
+              );
+            })()}
           </div>
 
           <Input

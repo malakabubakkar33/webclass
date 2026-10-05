@@ -26,9 +26,15 @@ import {
   ArrowUpRight,
   HardDrive,
   ExternalLink,
+  Zap,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isGoogleDriveUrl, openVideoInGoogleDrive } from '../../utils/driveUtils.js';
+import {
+  isGoogleDriveUrl,
+  openVideoInGoogleDrive,
+  getVideoPlatformType,
+  Youtube,
+} from '../../utils/driveUtils.js';
 
 export const CourseDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -454,33 +460,103 @@ export const CourseDetailsPage: React.FC = () => {
                             <span className={lesson.isCompleted ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
                               {lesson.isCompleted ? '✓ Completed' : '○ Not Started'}
                             </span>
-                            {isGoogleDriveUrl(lesson.video_url) && (
-                              <>
-                                <span>•</span>
-                                <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/80 inline-flex items-center gap-1">
-                                  <HardDrive className="w-2.5 h-2.5 text-amber-600" />
-                                  Drive Stream
-                                </span>
-                              </>
-                            )}
+                            {(() => {
+                              const plat = getVideoPlatformType(lesson.video_url);
+                              if (plat === 'bunny') {
+                                return (
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-[10px] font-bold text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200/80 inline-flex items-center gap-1">
+                                      <Zap className="w-2.5 h-2.5 text-orange-600 fill-current" />
+                                      Bunny CDN
+                                    </span>
+                                  </>
+                                );
+                              }
+                              if (plat === 'youtube') {
+                                return (
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-[10px] font-bold text-red-700 bg-red-50 px-1.5 py-0.5 rounded border border-red-200/80 inline-flex items-center gap-1">
+                                      <Youtube className="w-2.5 h-2.5 text-red-600 fill-current" />
+                                      YouTube HD
+                                    </span>
+                                  </>
+                                );
+                              }
+                              if (plat === 'drive') {
+                                return (
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/80 inline-flex items-center gap-1">
+                                      <HardDrive className="w-2.5 h-2.5 text-amber-600" />
+                                      Drive Stream
+                                    </span>
+                                  </>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
                         </div>
                       </div>
 
                       <div className="shrink-0 flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openVideoInGoogleDrive(lesson.video_url);
-                          }}
-                          className="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 flex items-center gap-1.5 transition shadow-2xs"
-                          title="Open directly in Google Drive (Zero database bandwidth used)"
-                        >
-                          <HardDrive className="w-3.5 h-3.5 text-amber-600" />
-                          <span className="hidden sm:inline">Drive</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </button>
+                        {(() => {
+                          const plat = getVideoPlatformType(lesson.video_url);
+                          if (plat === 'youtube') {
+                            return (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(lesson.video_url, '_blank');
+                                }}
+                                className="px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 text-xs font-bold border border-red-200 flex items-center gap-1.5 transition shadow-2xs"
+                                title="Open on YouTube"
+                              >
+                                <Youtube className="w-3.5 h-3.5 text-red-600 fill-current" />
+                                <span className="hidden sm:inline">YouTube</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </button>
+                            );
+                          }
+                          if (plat === 'bunny') {
+                            return (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(lesson.video_url, '_blank');
+                                }}
+                                className="px-2.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 text-xs font-bold border border-orange-200 flex items-center gap-1.5 transition shadow-2xs"
+                                title="Open Bunny Stream"
+                              >
+                                <Zap className="w-3.5 h-3.5 text-orange-600 fill-current" />
+                                <span className="hidden sm:inline">Bunny</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </button>
+                            );
+                          }
+                          if (plat === 'drive') {
+                            return (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openVideoInGoogleDrive(lesson.video_url);
+                                }}
+                                className="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 flex items-center gap-1.5 transition shadow-2xs"
+                                title="Open in Google Drive"
+                              >
+                                <HardDrive className="w-3.5 h-3.5 text-amber-600" />
+                                <span className="hidden sm:inline">Drive</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </button>
+                            );
+                          }
+                          return null;
+                        })()}
 
                         <Button
                           size="sm"
