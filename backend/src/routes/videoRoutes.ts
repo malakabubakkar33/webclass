@@ -17,6 +17,9 @@ router.post('/', authenticate, requireTeacher, VideoController.create);
 // Student watch progress update
 router.post('/:id/progress', authenticate, requireStudent, VideoController.updateProgress);
 
+// Teacher update video (e.g. Google Drive link, title, description)
+router.put('/:id', authenticate, requireTeacher, VideoController.update);
+
 // Teacher delete video
 router.delete('/:id', authenticate, requireTeacher, VideoController.delete);
 

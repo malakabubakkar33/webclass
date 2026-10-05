@@ -205,6 +205,15 @@
       "order_index": 1,
       "created_at": "2026-10-05T11:48:42.902Z",
       "updated_at": "2026-10-05T11:48:42.902Z"
+    },
+    {
+      "id": "topic-8d24e8db",
+      "course_id": "course-firebase",
+      "title": "fitire bae",
+      "description": "",
+      "order_index": 1,
+      "created_at": "2026-10-05T12:49:54.530Z",
+      "updated_at": "2026-10-05T12:49:54.530Z"
     }
   ],
   "videos": [
@@ -222,6 +231,21 @@
       "uploaded_by": "b48f07b1-1234-4567-89ab-cdef01234567",
       "created_at": "2026-10-05T11:49:07.642Z",
       "updated_at": "2026-10-05T11:49:07.642Z"
+    },
+    {
+      "id": "video-89a6a1ce",
+      "course_id": "course-firebase",
+      "topic_id": "topic-8d24e8db",
+      "title": "firebaseaccount",
+      "description": "Comprehensive lesson tutorial on firebaseaccount.",
+      "video_url": "https://vejdcilgwgiscaspbfho.supabase.co/storage/v1/object/public/course-videos/lessons/1791204626776-f8ec9f8a-82c5-4acc-8a1a-8f4c028698cd.mp4",
+      "storage_path": "course-videos/lessons/1791204626776-f8ec9f8a-82c5-4acc-8a1a-8f4c028698cd.mp4",
+      "thumbnail_url": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800",
+      "duration": "15:00",
+      "order_index": 1,
+      "uploaded_by": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "created_at": "2026-10-05T12:50:30.164Z",
+      "updated_at": "2026-10-05T12:50:30.164Z"
     }
   ],
   "attendance": [
@@ -233,7 +257,7 @@
       "status": "present",
       "marked_by": "b48f07b1-1234-4567-89ab-cdef01234567",
       "created_at": "2026-10-05T12:11:25.024Z",
-      "updated_at": "2026-10-05T12:12:35.300Z"
+      "updated_at": "2026-10-05T12:22:40.604Z"
     }
   ],
   "attendance_sessions": [
@@ -243,7 +267,7 @@
       "class_day": "monday",
       "start_time": "16:00",
       "end_time": "18:00",
-      "status": "active",
+      "status": "closed",
       "initiated_by": "b48f07b1-1234-4567-89ab-cdef01234567",
       "message": "Live class attendance beacon",
       "created_at": "2026-10-05T12:12:34.616Z",
@@ -255,9 +279,10 @@
           "avatar_url": "https://vejdcilgwgiscaspbfho.supabase.co/storage/v1/object/public/avatars/avatar-e09ce3fe-9207-44e9-916d-bf2f01b0ca5f.jpg",
           "status": "approved",
           "submitted_at": "2026-10-05T12:12:35.300Z",
-          "approved_at": "2026-10-05T12:12:35.300Z"
+          "approved_at": "2026-10-05T12:22:40.604Z"
         }
-      ]
+      ],
+      "closed_at": "2026-10-05T12:32:35.102Z"
     },
     {
       "id": "a03cb355-2996-41ce-bd1c-a563b7ac7f9f",
@@ -306,11 +331,52 @@
       "progress_seconds": 10,
       "updated_at": "2026-10-05T11:54:06.758Z",
       "completed_at": "2026-10-05T11:54:06.758Z"
+    },
+    {
+      "id": "49b3a273-f1cc-420f-b985-c60701750b9b",
+      "student_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "video_id": "video-b34b42cb",
+      "watched": true,
+      "completed": true,
+      "progress_seconds": 100,
+      "updated_at": "2026-10-05T12:48:29.553Z",
+      "completed_at": "2026-10-05T12:48:29.553Z"
+    },
+    {
+      "id": "18c424b0-de90-404e-8fbf-8022f356e057",
+      "student_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "video_id": "video-89a6a1ce",
+      "watched": true,
+      "completed": false,
+      "progress_seconds": 0,
+      "updated_at": "2026-10-05T12:50:45.281Z"
     }
   ],
   "assignments": [],
   "assignment_submissions": [],
   "notifications": [
+    {
+      "id": "68b48884-7d71-488c-bc6e-254d326d21cd",
+      "user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "type": "video_uploaded",
+      "title": "New Lesson Available",
+      "message": "New video lesson \"firebaseaccount\" uploaded in Firebase Cloud Mastery & Push Notifications (fitire bae).",
+      "reference_type": "video",
+      "reference_id": "video-89a6a1ce",
+      "is_read": false,
+      "created_at": "2026-10-05T12:50:30.165Z"
+    },
+    {
+      "id": "06a0a8b1-1e80-4703-baa4-af476cc99658",
+      "user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "type": "attendance_marked",
+      "title": "✅ Attendance Verified Present",
+      "message": "Your attendance for MONDAY, 2026-10-05 (4:00 PM - 6:00 PM) has been verified as PRESENT by Prof. Alex Vance.",
+      "reference_type": "attendance",
+      "reference_id": "2026-10-05",
+      "is_read": false,
+      "created_at": "2026-10-05T12:22:40.604Z"
+    },
     {
       "id": "4c559fab-4146-4766-808c-201bb5b1d4c0",
       "user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
@@ -319,7 +385,7 @@
       "message": "Prof. Alex Vance has requested attendance for today's MONDAY class (4:00 PM - 6:00 PM). Please accept the request now to be marked present.",
       "reference_type": "attendance_session",
       "reference_id": "a03cb355-2996-41ce-bd1c-a563b7ac7f9f",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-10-05T12:11:24.218Z"
     },
     {
@@ -345,9 +411,47 @@
       "created_at": "2026-10-05T11:49:07.642Z"
     }
   ],
-  "notification_tokens": [],
+  "notification_tokens": [
+    {
+      "id": "eb2661f6-c46a-4e75-9393-77e5e79abf17",
+      "user_id": "197c5ff8-03ce-4236-a332-6c0e66006e41",
+      "token": "fcm-token-lrbrdvg825",
+      "device_info": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+      "created_at": "2026-10-05T12:40:13.954Z"
+    }
+  ],
   "password_resets": [],
   "activity_logs": [
+    {
+      "id": "a573bd01-a390-4b3f-9e3c-3587681ec790",
+      "actor_user_id": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "event_type": "VIDEO_UPLOADED",
+      "title": "New Lesson Uploaded",
+      "description": "Uploaded lesson \"firebaseaccount\" to Firebase Cloud Mastery & Push Notifications.",
+      "reference_type": "video",
+      "reference_id": "video-89a6a1ce",
+      "created_at": "2026-10-05T12:50:30.164Z"
+    },
+    {
+      "id": "ccddaee7-2407-46a1-9222-20a479e2c604",
+      "actor_user_id": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "event_type": "TOPIC_CREATED",
+      "title": "New Topic Added",
+      "description": "Added topic \"fitire bae\" to Firebase Cloud Mastery & Push Notifications.",
+      "reference_type": "topic",
+      "reference_id": "topic-8d24e8db",
+      "created_at": "2026-10-05T12:49:54.530Z"
+    },
+    {
+      "id": "3522be62-e0d8-4fa3-9503-19ab7cd69903",
+      "actor_user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "event_type": "LESSON_COMPLETED",
+      "title": "Student Completed Lesson",
+      "description": "Malik Abubakkar completed \"github account\".",
+      "reference_type": "video",
+      "reference_id": "video-b34b42cb",
+      "created_at": "2026-10-05T12:48:29.553Z"
+    },
     {
       "id": "d31a12bb-c57e-48e5-8622-cdf9c9eee393",
       "actor_user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",

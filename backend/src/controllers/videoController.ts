@@ -120,6 +120,35 @@ export class VideoController {
     }
   }
 
+  public static async update(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user || req.user.role !== 'teacher') {
+        res.status(403).json({ success: false, message: 'Teacher access required' });
+        return;
+      }
+      const rawId = req.params.id;
+      const id = String(Array.isArray(rawId) ? rawId[0] : rawId);
+      const { title, description, videoUrl, storagePath, thumbnailUrl, duration } = req.body;
+
+      const updated = VideoService.updateVideo(id, {
+        title,
+        description,
+        videoUrl,
+        storagePath,
+        thumbnailUrl,
+        duration,
+      });
+
+      res.json({
+        success: true,
+        message: 'Video lesson updated successfully',
+        data: updated,
+      });
+    } catch (err: any) {
+      res.status(400).json({ success: false, message: err.message });
+    }
+  }
+
   public static async delete(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.user || req.user.role !== 'teacher') {

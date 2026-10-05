@@ -243,4 +243,33 @@ export class VideoService {
 
     db.save();
   }
+
+  /**
+   * Update video details (e.g. Google Drive URL or title)
+   */
+  public static updateVideo(
+    videoId: string,
+    data: {
+      title?: string;
+      description?: string;
+      videoUrl?: string;
+      storagePath?: string;
+      thumbnailUrl?: string;
+      duration?: string;
+    }
+  ): Video {
+    const video = db.videos.find(v => v.id === videoId);
+    if (!video) throw new Error('Video not found');
+
+    if (data.title !== undefined) video.title = data.title.trim();
+    if (data.description !== undefined) video.description = data.description;
+    if (data.videoUrl !== undefined) video.video_url = data.videoUrl;
+    if (data.storagePath !== undefined) video.storage_path = data.storagePath;
+    if (data.thumbnailUrl !== undefined) video.thumbnail_url = data.thumbnailUrl;
+    if (data.duration !== undefined) video.duration = data.duration;
+    video.updated_at = new Date().toISOString();
+
+    db.save();
+    return video;
+  }
 }

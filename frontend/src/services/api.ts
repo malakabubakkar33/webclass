@@ -135,6 +135,7 @@ export const api = {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   createVideo: (data: any) => apiClient.post('/videos', data),
+  updateVideo: (id: string, data: any) => apiClient.put(`/videos/${id}`, data),
   updateVideoProgress: (videoId: string, data: { completed: boolean; progressSeconds?: number }) =>
     apiClient.post(`/videos/${videoId}/progress`, data),
   deleteVideo: (id: string) => apiClient.delete(`/videos/${id}`),
