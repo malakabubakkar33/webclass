@@ -67,7 +67,7 @@ export class AttendanceController {
       const result = await AttendanceService.studentAcceptRequest(req.user.userId, sessionId);
       res.json({
         success: true,
-        message: 'Attendance request accepted! Waiting for teacher to confirm present.',
+        message: 'Attendance request accepted! You are marked Present for today’s session. 🎉',
         data: result,
       });
     } catch (err: any) {

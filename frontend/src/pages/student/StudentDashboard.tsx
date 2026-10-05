@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button.js';
 import { Skeleton } from '../../components/ui/Skeleton.js';
 import { AnimatedCounter } from '../../components/ui/AnimatedCounter.js';
 import { api } from '../../services/api.js';
+import { useToast } from '../../context/ToastContext.js';
 import {
   TrendingUp,
   CheckCircle2,
@@ -19,7 +20,10 @@ import {
   Layers,
   Award,
   BookOpen,
-  AlertCircle
+  AlertCircle,
+  Hand,
+  CheckCheck,
+  Clock
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -40,11 +44,14 @@ import { motion } from 'framer-motion';
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { success, error: toastError } = useToast();
   const navigate = useNavigate();
 
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeSessionInfo, setActiveSessionInfo] = useState<any>(null);
+  const [isAcceptingAttendance, setIsAcceptingAttendance] = useState(false);
 
   const fetchDashboard = async () => {
     setIsLoading(true);
@@ -64,8 +71,6 @@ export const StudentDashboard: React.FC = () => {
     }
   };
 
-  const [activeSessionInfo, setActiveSessionInfo] = useState<any>(null);
-
   const fetchActiveSession = async () => {
     try {
       const res = await api.getActiveAttendanceSession();
@@ -75,9 +80,35 @@ export const StudentDashboard: React.FC = () => {
     } catch (e) {}
   };
 
+  const handleAcceptLiveAttendance = async (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsAcceptingAttendance(true);
+    try {
+      const res = await api.acceptAttendanceRequest(sessionId);
+      if (res.data?.success) {
+        success('Attendance accepted! You are marked Present for today’s class. 🎉', 'Verified Present ✅');
+        await fetchActiveSession();
+        await fetchDashboard();
+      }
+    } catch (err: any) {
+      toastError(err.response?.data?.message || err.message || 'Failed to accept attendance request');
+    } finally {
+      setIsAcceptingAttendance(false);
+    }
+  };
+
   useEffect(() => {
     fetchDashboard();
     fetchActiveSession();
+
+    // Auto-poll active attendance session every 3.5 seconds
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchActiveSession();
+      }
+    }, 3500);
+
+    return () => clearInterval(interval);
   }, []);
 
   const getGreeting = () => {
@@ -230,7 +261,7 @@ export const StudentDashboard: React.FC = () => {
       {activeSessionInfo?.session?.status === 'active' && (
         <div
           onClick={() => navigate('/student/attendance')}
-          className="cursor-pointer p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-primary-700 text-white shadow-lg flex items-center justify-between gap-4 hover:shadow-xl transition transform hover:-translate-y-0.5"
+          className="cursor-pointer p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-primary-700 text-white shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-xl transition transform hover:-translate-y-0.5"
         >
           <div className="flex items-center gap-3.5">
             <span className="w-3.5 h-3.5 rounded-full bg-rose-400 animate-ping shrink-0" />
@@ -244,13 +275,42 @@ export const StudentDashboard: React.FC = () => {
                 </span>
               </div>
               <p className="text-sm font-extrabold mt-0.5 text-white">
-                {dashboardData?.instructor?.fullName || 'Your Instructor'} requested attendance for today's class! Tap here to Accept & Mark Present.
+                {activeSessionInfo?.studentResponse?.status === 'approved' || activeSessionInfo?.isAlreadyMarkedPresentToday
+                  ? "Your check-in has been verified as Present for today's session! ✅"
+                  : `${dashboardData?.instructor?.fullName || 'Your Instructor'} requested attendance for today's class! Tap Accept below.`}
               </p>
             </div>
           </div>
-          <Button variant="secondary" size="sm" className="shrink-0 bg-white text-primary-900 font-black text-xs rounded-xl shadow-xs">
-            Open Attendance &rarr;
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            {activeSessionInfo?.studentResponse?.status === 'approved' || activeSessionInfo?.isAlreadyMarkedPresentToday ? (
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-bold text-xs shadow-sm">
+                <CheckCheck className="w-4 h-4 stroke-[3]" />
+                <span>Verified Present Today</span>
+              </span>
+            ) : (
+              <Button
+                onClick={(e) => handleAcceptLiveAttendance(activeSessionInfo.session.id, e)}
+                isLoading={isAcceptingAttendance}
+                variant="secondary"
+                size="sm"
+                className="bg-white hover:bg-emerald-50 text-emerald-800 font-black text-xs px-4 py-2 rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer"
+              >
+                <Hand className="w-4 h-4 text-emerald-600" />
+                <span>Accept Attendance Now</span>
+              </Button>
+            )}
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate('/student/attendance');
+              }}
+              variant="outline"
+              size="sm"
+              className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-xs rounded-xl"
+            >
+              Details &rarr;
+            </Button>
+          </div>
         </div>
       )}
 

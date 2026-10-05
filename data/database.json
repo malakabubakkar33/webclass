@@ -128,6 +128,18 @@
       "is_published": true,
       "created_at": "2026-02-25T08:00:00.000Z",
       "updated_at": "2026-02-25T08:00:00.000Z"
+    },
+    {
+      "id": "course-github-0301",
+      "title": "github",
+      "slug": "github",
+      "description": "github account\n",
+      "level": "Beginner",
+      "thumbnail_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600",
+      "created_by": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "is_published": true,
+      "created_at": "2026-10-05T11:48:30.301Z",
+      "updated_at": "2026-10-05T11:48:30.302Z"
     }
   ],
   "topics": [
@@ -184,18 +196,297 @@
       "order_index": 2,
       "created_at": "2026-02-10T08:00:00.000Z",
       "updated_at": "2026-02-10T08:00:00.000Z"
+    },
+    {
+      "id": "topic-5024539f",
+      "course_id": "course-github-0301",
+      "title": "account",
+      "description": "",
+      "order_index": 1,
+      "created_at": "2026-10-05T11:48:42.902Z",
+      "updated_at": "2026-10-05T11:48:42.902Z"
     }
   ],
-  "videos": [],
-  "attendance": [],
-  "attendance_sessions": [],
-  "video_progress": [],
+  "videos": [
+    {
+      "id": "video-b34b42cb",
+      "course_id": "course-github-0301",
+      "topic_id": "topic-5024539f",
+      "title": "github account",
+      "description": "github",
+      "video_url": "https://vejdcilgwgiscaspbfho.supabase.co/storage/v1/object/public/course-videos/lessons/1791200945028-f8ec9f8a-82c5-4acc-8a1a-8f4c028698cd.mp4",
+      "storage_path": "course-videos/lessons/1791200945028-f8ec9f8a-82c5-4acc-8a1a-8f4c028698cd.mp4",
+      "thumbnail_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600",
+      "duration": "15:00",
+      "order_index": 1,
+      "uploaded_by": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "created_at": "2026-10-05T11:49:07.642Z",
+      "updated_at": "2026-10-05T11:49:07.642Z"
+    }
+  ],
+  "attendance": [
+    {
+      "id": "c2397174-f6c0-406e-ab25-aec757f385d7",
+      "student_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "date": "2026-10-05",
+      "class_day": "monday",
+      "status": "present",
+      "marked_by": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "created_at": "2026-10-05T12:11:25.024Z",
+      "updated_at": "2026-10-05T12:12:35.300Z"
+    }
+  ],
+  "attendance_sessions": [
+    {
+      "id": "7e45ec88-f6b1-477d-95ca-fb819d673602",
+      "date": "2026-10-05",
+      "class_day": "monday",
+      "start_time": "16:00",
+      "end_time": "18:00",
+      "status": "active",
+      "initiated_by": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "message": "Live class attendance beacon",
+      "created_at": "2026-10-05T12:12:34.616Z",
+      "responses": [
+        {
+          "student_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+          "student_name": "Malik Abubakkar",
+          "roll_number": "00000",
+          "avatar_url": "https://vejdcilgwgiscaspbfho.supabase.co/storage/v1/object/public/avatars/avatar-e09ce3fe-9207-44e9-916d-bf2f01b0ca5f.jpg",
+          "status": "approved",
+          "submitted_at": "2026-10-05T12:12:35.300Z",
+          "approved_at": "2026-10-05T12:12:35.300Z"
+        }
+      ]
+    },
+    {
+      "id": "a03cb355-2996-41ce-bd1c-a563b7ac7f9f",
+      "date": "2026-10-05",
+      "class_day": "monday",
+      "start_time": "16:00",
+      "end_time": "18:00",
+      "status": "closed",
+      "initiated_by": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "message": "Live class attendance beacon",
+      "created_at": "2026-10-05T12:11:24.218Z",
+      "responses": [
+        {
+          "student_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+          "student_name": "Malik Abubakkar",
+          "roll_number": "00000",
+          "avatar_url": "https://vejdcilgwgiscaspbfho.supabase.co/storage/v1/object/public/avatars/avatar-e09ce3fe-9207-44e9-916d-bf2f01b0ca5f.jpg",
+          "status": "approved",
+          "submitted_at": "2026-10-05T12:11:25.024Z",
+          "approved_at": "2026-10-05T12:11:25.024Z"
+        }
+      ],
+      "closed_at": "2026-10-05T12:12:34.616Z"
+    },
+    {
+      "id": "bc03539b-58c6-4451-99d1-e4b680a45355",
+      "date": "2026-10-05",
+      "class_day": "monday",
+      "start_time": "16:00",
+      "end_time": "18:00",
+      "status": "closed",
+      "initiated_by": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "message": "Official attendance request for MONDAY (2026-10-05) from 4:00 PM to 6:00 PM. Please click Accept.",
+      "created_at": "2026-10-05T11:54:44.642Z",
+      "responses": [],
+      "closed_at": "2026-10-05T12:11:24.217Z"
+    }
+  ],
+  "video_progress": [
+    {
+      "id": "1bab5a0c-a512-4e9c-adec-c589447ce0ef",
+      "student_id": "197c5ff8-03ce-4236-a332-6c0e66006e41",
+      "video_id": "video-b34b42cb",
+      "watched": true,
+      "completed": true,
+      "progress_seconds": 10,
+      "updated_at": "2026-10-05T11:54:06.758Z",
+      "completed_at": "2026-10-05T11:54:06.758Z"
+    }
+  ],
   "assignments": [],
   "assignment_submissions": [],
-  "notifications": [],
+  "notifications": [
+    {
+      "id": "4c559fab-4146-4766-808c-201bb5b1d4c0",
+      "user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "type": "attendance_request",
+      "title": "📢 Class Attendance is Now Open!",
+      "message": "Prof. Alex Vance has requested attendance for today's MONDAY class (4:00 PM - 6:00 PM). Please accept the request now to be marked present.",
+      "reference_type": "attendance_session",
+      "reference_id": "a03cb355-2996-41ce-bd1c-a563b7ac7f9f",
+      "is_read": false,
+      "created_at": "2026-10-05T12:11:24.218Z"
+    },
+    {
+      "id": "7bfb930d-549a-4cb9-93e0-bb8e52790044",
+      "user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "type": "attendance_request",
+      "title": "📢 Class Attendance is Now Open!",
+      "message": "Prof. Alex Vance has requested attendance for today's MONDAY class (4:00 PM - 6:00 PM). Please accept the request now to be marked present.",
+      "reference_type": "attendance_session",
+      "reference_id": "bc03539b-58c6-4451-99d1-e4b680a45355",
+      "is_read": false,
+      "created_at": "2026-10-05T11:54:44.643Z"
+    },
+    {
+      "id": "c7b16a38-56b3-4012-90b6-f027a75c23f3",
+      "user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "type": "video_uploaded",
+      "title": "New Lesson Available",
+      "message": "New video lesson \"github account\" uploaded in github (account).",
+      "reference_type": "video",
+      "reference_id": "video-b34b42cb",
+      "is_read": false,
+      "created_at": "2026-10-05T11:49:07.642Z"
+    }
+  ],
   "notification_tokens": [],
   "password_resets": [],
-  "activity_logs": [],
+  "activity_logs": [
+    {
+      "id": "d31a12bb-c57e-48e5-8622-cdf9c9eee393",
+      "actor_user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "event_type": "ATTENDANCE_MARKED",
+      "title": "Attendance Check-In Accepted",
+      "description": "Malik Abubakkar (00000) accepted live attendance request for MONDAY (2026-10-05) and was verified Present.",
+      "reference_type": "attendance",
+      "reference_id": "2026-10-05",
+      "created_at": "2026-10-05T12:12:35.300Z"
+    },
+    {
+      "id": "135e109f-fdab-4384-9bc5-1e54b47c3de1",
+      "actor_user_id": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "event_type": "ATTENDANCE_MARKED",
+      "title": "Attendance Request Broadcasted",
+      "description": "Teacher opened a live attendance session for MONDAY (2026-10-05) from 4:00 PM to 6:00 PM.",
+      "reference_type": "attendance_session",
+      "reference_id": "7e45ec88-f6b1-477d-95ca-fb819d673602",
+      "created_at": "2026-10-05T12:12:34.617Z"
+    },
+    {
+      "id": "7af4ed93-8be8-478c-9570-04d681000c58",
+      "actor_user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "event_type": "ATTENDANCE_MARKED",
+      "title": "Attendance Check-In Accepted",
+      "description": "Malik Abubakkar (00000) accepted live attendance request for MONDAY (2026-10-05) and was verified Present.",
+      "reference_type": "attendance",
+      "reference_id": "2026-10-05",
+      "created_at": "2026-10-05T12:11:25.024Z"
+    },
+    {
+      "id": "57588788-04b3-4b2b-9f9e-5b0247ed2b3c",
+      "actor_user_id": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "event_type": "ATTENDANCE_MARKED",
+      "title": "Attendance Request Broadcasted",
+      "description": "Teacher opened a live attendance session for MONDAY (2026-10-05) from 4:00 PM to 6:00 PM.",
+      "reference_type": "attendance_session",
+      "reference_id": "a03cb355-2996-41ce-bd1c-a563b7ac7f9f",
+      "created_at": "2026-10-05T12:11:24.219Z"
+    },
+    {
+      "id": "7f0aca64-6a33-4afc-8b52-d04b8be055bb",
+      "actor_user_id": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "event_type": "ATTENDANCE_MARKED",
+      "title": "Attendance Request Broadcasted",
+      "description": "Teacher opened a live attendance session for MONDAY (2026-10-05) from 4:00 PM to 6:00 PM.",
+      "reference_type": "attendance_session",
+      "reference_id": "bc03539b-58c6-4451-99d1-e4b680a45355",
+      "created_at": "2026-10-05T11:54:44.643Z"
+    },
+    {
+      "id": "c96902a1-7dcc-4967-a367-ba7c0fd01001",
+      "actor_user_id": "197c5ff8-03ce-4236-a332-6c0e66006e41",
+      "event_type": "LESSON_COMPLETED",
+      "title": "Student Completed Lesson",
+      "description": "A student completed \"github account\".",
+      "reference_type": "video",
+      "reference_id": "video-b34b42cb",
+      "created_at": "2026-10-05T11:54:06.758Z"
+    },
+    {
+      "id": "068aa2f9-b53b-4a13-8d4d-64d6e5a77df4",
+      "actor_user_id": "197c5ff8-03ce-4236-a332-6c0e66006e41",
+      "event_type": "LESSON_COMPLETED",
+      "title": "Student Completed Lesson",
+      "description": "A student completed \"github account\".",
+      "reference_type": "video",
+      "reference_id": "video-b34b42cb",
+      "created_at": "2026-10-05T11:54:06.290Z"
+    },
+    {
+      "id": "1fcadad7-a23c-48b6-9af4-5195913702b0",
+      "actor_user_id": "197c5ff8-03ce-4236-a332-6c0e66006e41",
+      "event_type": "LESSON_COMPLETED",
+      "title": "Student Completed Lesson",
+      "description": "A student completed \"github account\".",
+      "reference_type": "video",
+      "reference_id": "video-b34b42cb",
+      "created_at": "2026-10-05T11:54:05.796Z"
+    },
+    {
+      "id": "feaafe39-92f3-4d1d-b9f4-f619e343ad79",
+      "actor_user_id": "197c5ff8-03ce-4236-a332-6c0e66006e41",
+      "event_type": "LESSON_COMPLETED",
+      "title": "Student Completed Lesson",
+      "description": "A student completed \"github account\".",
+      "reference_type": "video",
+      "reference_id": "video-b34b42cb",
+      "created_at": "2026-10-05T11:54:04.834Z"
+    },
+    {
+      "id": "0ba63d81-7f0a-4c48-a57d-77dc9d4887be",
+      "actor_user_id": "197c5ff8-03ce-4236-a332-6c0e66006e41",
+      "event_type": "LESSON_COMPLETED",
+      "title": "Student Completed Lesson",
+      "description": "A student completed \"github account\".",
+      "reference_type": "video",
+      "reference_id": "video-b34b42cb",
+      "created_at": "2026-10-05T11:53:57.248Z"
+    },
+    {
+      "id": "5ddc8abd-b3e7-45f3-b67d-6dd829b5fbb6",
+      "actor_user_id": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "event_type": "VIDEO_UPLOADED",
+      "title": "New Lesson Uploaded",
+      "description": "Uploaded lesson \"github account\" to github.",
+      "reference_type": "video",
+      "reference_id": "video-b34b42cb",
+      "created_at": "2026-10-05T11:49:07.642Z"
+    },
+    {
+      "id": "61dcc41d-9e2a-4d72-a502-ec664bbd6845",
+      "actor_user_id": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "event_type": "TOPIC_CREATED",
+      "title": "New Topic Added",
+      "description": "Added topic \"account\" to github.",
+      "reference_type": "topic",
+      "reference_id": "topic-5024539f",
+      "created_at": "2026-10-05T11:48:42.902Z"
+    },
+    {
+      "id": "97396706-ac6a-448a-963b-05496e882761",
+      "actor_user_id": "b48f07b1-1234-4567-89ab-cdef01234567",
+      "event_type": "COURSE_CREATED",
+      "title": "New Course Created",
+      "description": "Created new course \"github\".",
+      "reference_type": "course",
+      "reference_id": "course-github-0301",
+      "created_at": "2026-10-05T11:48:30.302Z"
+    },
+    {
+      "id": "act-std-5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "actor_user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "event_type": "STUDENT_REGISTERED",
+      "title": "New Student Enrolled",
+      "description": "Malik Abubakkar registered for the Web Development cohort.",
+      "created_at": "2026-10-05T11:47:56.049Z"
+    }
+  ],
   "class_settings": {
     "id": "smit-web-class-settings-01",
     "class_name": "SMIT Web Development Class",

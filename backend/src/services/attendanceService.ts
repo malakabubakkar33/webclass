@@ -95,7 +95,6 @@ export class AttendanceService {
   /**
    * Get the current active session, along with user context (if student)
    * Automatically expires after 20 minutes.
-   * If student has ALREADY been marked present for today, do not return active session.
    */
   public static getActiveSession(userId?: string, role?: string) {
     const active = db.attendance_sessions.find(s => s.status === 'active');
@@ -114,25 +113,29 @@ export class AttendanceService {
     }
 
     let studentResponse = null;
+    let isAlreadyMarkedPresentToday = false;
+
     if (userId && role === 'student') {
-      // Check if student was ALREADY marked present for this date
+      studentResponse = active.responses.find(r => r.student_id === userId) || null;
+
+      // Check if student is marked present in db.attendance for this date
       const alreadyPresent = db.attendance.find(
         a => a.student_id === userId && a.date === active.date && a.status === 'present'
       );
       if (alreadyPresent) {
-        // Do not prompt student with request banner if they are already stamped present today!
-        return {
-          session: null,
-          studentResponse: null,
-          remainingSeconds: 0,
-          isAlreadyMarkedPresentToday: true,
-          totalResponses: active.responses.length,
-          approvedCount: active.responses.filter(r => r.status === 'approved').length,
-          pendingCount: active.responses.filter(r => r.status === 'submitted').length,
-        };
+        isAlreadyMarkedPresentToday = true;
+        if (!studentResponse) {
+          studentResponse = {
+            student_id: userId,
+            student_name: 'Student',
+            roll_number: 'N/A',
+            avatar_url: '',
+            status: 'approved',
+            submitted_at: alreadyPresent.created_at || new Date().toISOString(),
+            approved_at: alreadyPresent.updated_at || new Date().toISOString(),
+          };
+        }
       }
-
-      studentResponse = active.responses.find(r => r.student_id === userId) || null;
     }
 
     const remainingSeconds = Math.max(0, Math.floor((twentyMinsMs - elapsedMs) / 1000));
@@ -141,7 +144,7 @@ export class AttendanceService {
       session: active,
       studentResponse,
       remainingSeconds,
-      isAlreadyMarkedPresentToday: false,
+      isAlreadyMarkedPresentToday,
       totalResponses: active.responses.length,
       approvedCount: active.responses.filter(r => r.status === 'approved').length,
       pendingCount: active.responses.filter(r => r.status === 'submitted').length,
@@ -149,15 +152,20 @@ export class AttendanceService {
   }
 
   /**
-   * Student accepts attendance request
+   * Student accepts attendance request - immediately marks Present and verifies
    */
   public static async studentAcceptRequest(
     studentId: string,
     sessionId: string
   ): Promise<{ session: AttendanceSession; response: AttendanceSessionResponse }> {
-    const session = db.attendance_sessions.find(s => s.id === sessionId && s.status === 'active');
+    let session = db.attendance_sessions.find(s => s.id === sessionId);
+    if (!session || session.status !== 'active') {
+      // Fallback: check if ANY session is currently active
+      session = db.attendance_sessions.find(s => s.status === 'active');
+    }
+
     if (!session) {
-      throw new Error('No active attendance session found or session has already expired/closed.');
+      throw new Error('No active attendance session found or session has expired.');
     }
 
     const sessionCreatedAt = new Date(session.created_at).getTime();
@@ -174,21 +182,63 @@ export class AttendanceService {
     const profile = db.student_profiles.find(sp => sp.user_id === studentId);
     const existing = session.responses.find(r => r.student_id === studentId);
 
+    const dateString = session.date;
+    const classDay = session.class_day;
+
+    let response: AttendanceSessionResponse;
+
     if (existing) {
-      return { session, response: existing };
+      existing.status = 'approved';
+      if (!existing.approved_at) existing.approved_at = new Date().toISOString();
+      response = existing;
+    } else {
+      response = {
+        student_id: studentId,
+        student_name: profile ? profile.full_name : student.username,
+        roll_number: profile ? profile.roll_number : 'N/A',
+        avatar_url: profile?.avatar_url || '',
+        status: 'approved',
+        submitted_at: new Date().toISOString(),
+        approved_at: new Date().toISOString(),
+      };
+      session.responses.unshift(response);
     }
 
-    const response: AttendanceSessionResponse = {
-      student_id: studentId,
-      student_name: profile ? profile.full_name : student.username,
-      roll_number: profile ? profile.roll_number : 'N/A',
-      avatar_url: profile?.avatar_url || '',
-      status: 'submitted',
-      submitted_at: new Date().toISOString(),
-    };
+    // Immediately record / update official attendance as present in db.attendance
+    let existingAtt = db.attendance.find(
+      a => a.student_id === studentId && a.date === dateString
+    );
 
-    session.responses.unshift(response);
+    if (existingAtt) {
+      existingAtt.status = 'present';
+      existingAtt.class_day = classDay;
+      existingAtt.marked_by = session.initiated_by;
+      existingAtt.updated_at = new Date().toISOString();
+    } else {
+      const newAtt: Attendance = {
+        id: uuidv4(),
+        student_id: studentId,
+        date: dateString,
+        class_day: classDay,
+        status: 'present',
+        marked_by: session.initiated_by,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      db.attendance.push(newAtt);
+    }
+
     db.save();
+
+    // Log activity
+    db.logActivity({
+      actor_user_id: studentId,
+      event_type: 'ATTENDANCE_MARKED',
+      title: 'Attendance Check-In Accepted',
+      description: `${response.student_name} (${response.roll_number}) accepted live attendance request for ${classDay.toUpperCase()} (${dateString}) and was verified Present.`,
+      reference_type: 'attendance',
+      reference_id: dateString,
+    });
 
     return { session, response };
   }

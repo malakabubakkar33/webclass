@@ -91,17 +91,13 @@ export const StudentAttendancePage: React.FC = () => {
   const fetchActiveSession = async () => {
     try {
       const res = await api.getActiveAttendanceSession();
-      if (res.data?.success && res.data.data) {
+      if (res.data?.success && res.data.data?.session) {
         setActiveSessionInfo(res.data.data);
-
-        // Calculate 20 minutes countdown from session creation
-        const session = res.data.data.session;
-        if (session && session.created_at) {
-          const sessionCreatedAt = new Date(session.created_at).getTime();
-          const elapsed = Date.now() - sessionCreatedAt;
-          const twentyMinsMs = 20 * 60 * 1000;
-          const leftSec = Math.max(0, Math.floor((twentyMinsMs - elapsed) / 1000));
-          setRemainingSeconds(leftSec);
+        const serverSeconds = res.data.data.remainingSeconds;
+        if (typeof serverSeconds === 'number' && serverSeconds > 0) {
+          setRemainingSeconds(serverSeconds);
+        } else {
+          setRemainingSeconds(1200);
         }
       } else {
         setActiveSessionInfo(null);
@@ -117,12 +113,12 @@ export const StudentAttendancePage: React.FC = () => {
     fetchAttendance();
     fetchActiveSession();
 
-    // Poll active session every 4 seconds when tab is active
+    // Poll active session every 3 seconds when tab is active
     const pollInterval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         fetchActiveSession();
       }
-    }, 4000);
+    }, 3000);
 
     // 1-second countdown ticker for the 20-minute window
     const ticker = setInterval(() => {
@@ -145,9 +141,9 @@ export const StudentAttendancePage: React.FC = () => {
     try {
       const res = await api.acceptAttendanceRequest(sessionId);
       if (res.data?.success) {
-        success(`Attendance check-in submitted! Waiting for ${teacherName} to stamp Present.`, 'Request Sent ✋');
-        fetchActiveSession();
-        fetchAttendance();
+        success(`Attendance accepted! You are marked Present for today's class. 🎉`, 'Verified Present ✅');
+        await fetchActiveSession();
+        await fetchAttendance();
       }
     } catch (err: any) {
       error(err.response?.data?.message || err.message || 'Failed to accept attendance request');
@@ -354,26 +350,21 @@ export const StudentAttendancePage: React.FC = () => {
 
             {/* Right: Small, quick action button or status pill */}
             <div className="shrink-0 flex items-center gap-2">
-              {!myResponse ? (
+              {!myResponse || (myResponse.status !== 'approved' && !activeSessionInfo?.isAlreadyMarkedPresentToday) ? (
                 <Button
                   onClick={() => handleAcceptAttendance(liveSession.id)}
                   isLoading={isAccepting}
                   variant="primary"
                   size="sm"
-                  className="bg-primary-600 hover:bg-primary-700 text-white text-xs font-black px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5"
+                  className="bg-primary-600 hover:bg-primary-700 text-white text-xs font-black px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <Hand className="w-3.5 h-3.5" />
                   <span>Accept Attendance</span>
                 </Button>
-              ) : myResponse.status === 'approved' ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/90 border border-emerald-300 px-3 py-1.5 rounded-xl shadow-2xs">
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/90 border border-emerald-300 px-3.5 py-1.5 rounded-xl shadow-2xs">
                   <CheckCheck className="w-4 h-4 text-emerald-600 stroke-[3]" />
                   <span>Verified Present!</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-100/90 border border-amber-300 px-3 py-1.5 rounded-xl shadow-2xs">
-                  <Clock className="w-3.5 h-3.5 text-amber-600 animate-spin" />
-                  <span>Request Sent (Waiting for teacher)</span>
                 </span>
               )}
             </div>

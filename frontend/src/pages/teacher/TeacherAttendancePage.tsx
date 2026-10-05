@@ -303,14 +303,9 @@ export const TeacherAttendancePage: React.FC = () => {
 
   // Broadcast Attendance Request (Single Top-Right Button)
   const handleBroadcastRequest = async () => {
-    if (!isClassWindowActive) {
-      error('Attendance requests can only be sent on Mondays & Tuesdays between 4:00 PM and 6:00 PM.');
-      return;
-    }
-
     setIsStartingSession(true);
     try {
-      const msg = `Official attendance request for ${selectedDay.toUpperCase()} (${selectedDate}) from 4:00 PM to 6:00 PM. Please click Accept.`;
+      const msg = `Official attendance request for ${selectedDay.toUpperCase()} (${selectedDate}) (4:00 PM - 6:00 PM). Please click Accept.`;
       const res = await api.startAttendanceSession({
         date: selectedDate,
         message: msg,
