@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { useToast } from '../../context/ToastContext.js';
@@ -115,6 +116,18 @@ export const PublicNavbar: React.FC = () => {
     setMobileMenuOpen(false);
     setCoursesDropdownOpen(false);
   }, [location.pathname]);
+
+  // Lock body scrolling when mobile menu drawer is active
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   // Fetch courses dynamically from backend
   useEffect(() => {
@@ -393,17 +406,19 @@ export const PublicNavbar: React.FC = () => {
         </div>
       )}
 
-      {/* MOBILE SIDE SLIDE-OUT DRAWER WITH BACKDROP */}
-      {mobileMenuOpen && (
-        <>
-          {/* Backdrop Blur */}
-          <div
-            onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 bg-navy-950/60 backdrop-blur-sm z-50 md:hidden animate-in fade-in duration-200"
-          />
+      {/* MOBILE SIDE SLIDE-OUT DRAWER WITH BACKDROP (PORTALED DIRECTLY TO BODY FOR 100% VISIBILITY OVER HERO) */}
+      {typeof document !== 'undefined' &&
+        mobileMenuOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[999999] md:hidden">
+            {/* Backdrop Blur */}
+            <div
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-[999998] animate-in fade-in duration-200"
+            />
 
-          {/* Slide-out Drawer from Side */}
-          <div className="fixed top-0 right-0 bottom-0 w-[84%] max-w-[340px] bg-white z-50 shadow-2xl flex flex-col justify-between p-6 md:hidden animate-in slide-in-from-right duration-300 border-l border-slate-200/90 overflow-y-auto">
+            {/* Slide-out Drawer from Side */}
+            <div className="fixed top-0 right-0 bottom-0 w-[84%] max-w-[340px] bg-white z-[999999] shadow-2xl flex flex-col justify-between p-6 animate-in slide-in-from-right duration-300 border-l border-slate-200/90 overflow-y-auto">
             <div className="space-y-6">
               {/* Drawer Top Header */}
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -569,7 +584,8 @@ export const PublicNavbar: React.FC = () => {
               )}
             </div>
           </div>
-        </>
+        </div>,
+        document.body
       )}
     </nav>
   );
