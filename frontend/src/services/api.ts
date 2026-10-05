@@ -225,5 +225,6 @@ export const api = {
   getPublicCourses: () => cachedGet('/public/courses', 15000),
   getPublicCourseById: (id: string) => cachedGet(`/public/courses/${id}`, 15000),
   getPublicStudents: () => cachedGet('/public/students', 15000),
+  getPublicTopStudents: () => cachedGet('/public/top-students', 15000),
   getPublicTeacher: () => cachedGet('/public/teacher', 30000),
 };

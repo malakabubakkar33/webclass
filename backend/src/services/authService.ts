@@ -569,10 +569,13 @@ export class AuthService {
       message:
         emailResult.destination && emailResult.destination !== cleanEmail
           ? `Verification code dispatched to ${emailResult.destination} (Resend Sandbox). Please check your Gmail inbox.`
-          : `A 5-digit verification code has been dispatched to ${cleanEmail}. Please check your Gmail inbox.`,
+          : emailResult.delivered
+          ? `A 5-digit verification code has been dispatched to ${cleanEmail}. Please check your Gmail inbox.`
+          : `Verification code generated for ${cleanEmail}. (Resend API key unconfigured/invalid. Demo OTP: ${otp})`,
       email: cleanEmail,
       delivered: emailResult.delivered,
       destination: emailResult.destination || cleanEmail,
+      devOtp: !emailResult.delivered ? otp : undefined,
     };
   }
 

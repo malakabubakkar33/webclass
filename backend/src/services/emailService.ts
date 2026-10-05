@@ -18,8 +18,9 @@ export class EmailService {
     text: string
   ): Promise<{ delivered: boolean; info?: string; destination?: string }> {
     const apiKey = process.env.RESEND_API_KEY || ENV.RESEND_API_KEY;
-    if (!apiKey) {
-      return { delivered: false, info: 'RESEND_API_KEY not found' };
+    if (!apiKey || apiKey.includes('your_resend') || apiKey === 'placeholder') {
+      console.warn('[Resend Warning] RESEND_API_KEY is not configured. Please get a free API key at https://resend.com');
+      return { delivered: false, info: 'RESEND_API_KEY not configured. Add valid key in .env' };
     }
 
     const from = process.env.RESEND_FROM_EMAIL || ENV.RESEND_FROM_EMAIL || 'SMIT Web Class <onboarding@resend.dev>';
@@ -44,6 +45,11 @@ export class EmailService {
       const data = (await response.json()) as any;
 
       if (!response.ok) {
+        if (response.status === 401 || data?.name === 'validation_error' || data?.message?.includes('invalid')) {
+          console.warn('[Resend Notice] Provided RESEND_API_KEY is invalid or expired. To send real emails, update RESEND_API_KEY in .env');
+          return { delivered: false, info: 'Invalid Resend API key. Please check .env RESEND_API_KEY.' };
+        }
+
         // If Resend free sandbox restriction triggers (can only send to verified account owner),
         // gracefully attempt fallback sending to the sandbox account owner so the user still receives it in Gmail!
         if (data?.statusCode === 403 && data?.message?.includes('your own email address')) {

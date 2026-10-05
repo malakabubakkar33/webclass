@@ -1,0 +1,19 @@
+{
+  "name": "SMIT Web Class Portal",
+  "short_name": "SMIT Web Class",
+  "description": "Modern Web Development Learning Platform for SMIT Classroom",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"]
+}

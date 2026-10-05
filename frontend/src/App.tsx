@@ -5,11 +5,13 @@ import { AuthProvider } from './context/AuthContext.js';
 import { ToastProvider } from './context/ToastContext.js';
 import { AppRoutes } from './routes/AppRoutes.js';
 
+import { OfflineBanner } from './components/ui/OfflineBanner.js';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 2, // 2 minutes cache
+      staleTime: 1000 * 60 * 5, // 5 minutes cache for fast data transfer
       retry: 1,
     },
   },
@@ -22,6 +24,7 @@ export const App: React.FC = () => {
         <ToastProvider>
           <AuthProvider>
             <AppRoutes />
+            <OfflineBanner />
           </AuthProvider>
         </ToastProvider>
       </BrowserRouter>

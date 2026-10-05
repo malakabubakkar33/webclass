@@ -45,6 +45,7 @@ export const ForgotPasswordPage: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [devOtp, setDevOtp] = useState<string | null>(null);
 
   // 10-Minute (600s) Session Timer
   const [sessionTimeLeft, setSessionTimeLeft] = useState(600);
@@ -93,6 +94,9 @@ export const ForgotPasswordPage: React.FC = () => {
     try {
       const res = await api.forgotPassword(cleanEmail);
       if (res.data?.success) {
+        if (res.data.devOtp) {
+          setDevOtp(res.data.devOtp);
+        }
         success(
           res.data.message || '5-digit verification code dispatched to your email!',
           'Live Email Dispatched 📩'
@@ -192,6 +196,9 @@ export const ForgotPasswordPage: React.FC = () => {
     try {
       const res = await api.forgotPassword(email.trim().toLowerCase());
       if (res.data?.success) {
+        if (res.data.devOtp) {
+          setDevOtp(res.data.devOtp);
+        }
         success('A fresh 5-digit verification code was sent to your email!', 'Code Re-Dispatched 📨');
         setOtpDigits(['', '', '', '', '']);
         setResendCooldown(60);
@@ -422,6 +429,26 @@ export const ForgotPasswordPage: React.FC = () => {
                     </a>
                   </div>
                 </div>
+
+                {/* Resend / Dev Fallback Banner */}
+                {devOtp && (
+                  <div className="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-3.5 text-xs text-amber-900 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+                    <div className="flex items-center gap-2 text-left">
+                      <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>
+                        <strong>Instant Code:</strong> Resend email key unverified/in sandbox. Your verification OTP is:{' '}
+                        <strong className="font-mono text-sm tracking-wider text-primary-700 bg-white px-2 py-0.5 rounded border border-amber-200">{devOtp}</strong>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handlePastedCode(devOtp)}
+                      className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold shadow-xs text-xs whitespace-nowrap transition cursor-pointer"
+                    >
+                      Autofill OTP
+                    </button>
+                  </div>
+                )}
 
                 {/* 5 Distinct OTP Input Boxes */}
                 <div className="text-center pt-2">

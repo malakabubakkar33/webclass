@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { useToast } from '../../context/ToastContext.js';
 import { api } from '../../services/api.js';
-import { Input } from '../../components/ui/Input.js';
 import { Button } from '../../components/ui/Button.js';
 import {
   GraduationCap,
@@ -18,7 +17,8 @@ import {
   Layers,
   Video,
   ShieldCheck,
-  ArrowLeft
+  ArrowLeft,
+  KeyRound
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -97,20 +97,32 @@ export const LoginPage: React.FC = () => {
     setPassword('');
   };
 
+  const handleQuickFill = (type: 'student' | 'teacher') => {
+    if (type === 'student') {
+      setSelectedRole('student');
+      setIdentifier('malikabubakkar11');
+      setPassword('Password123!');
+    } else {
+      setSelectedRole('teacher');
+      setIdentifier('teacher');
+      setPassword('Password123!');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-between py-6 px-4 sm:px-6 relative overflow-hidden">
-      {/* Ambient background blur circles */}
-      <div className="absolute top-10 left-10 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-secondary-200/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-between py-4 sm:py-6 px-4 sm:px-6 relative overflow-hidden">
+      {/* Ambient background blur elements */}
+      <div className="absolute top-10 left-10 w-80 h-80 bg-primary-200/25 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-secondary-200/25 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Header Navbar */}
-      <header className="max-w-6xl w-full mx-auto flex items-center justify-between z-20 mb-4 sm:mb-8">
+      <header className="max-w-5xl w-full mx-auto flex items-center justify-between z-20 mb-3 sm:mb-6">
         <Link to="/" className="inline-flex items-center gap-3 group focus:outline-none">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary-600 to-secondary-600 flex items-center justify-center text-white shadow-md shadow-primary-500/20 group-hover:scale-105 transition-transform">
             <GraduationCap className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-lg font-extrabold text-navy-900 tracking-tight block">
+            <span className="text-base sm:text-lg font-black text-navy-950 tracking-tight block">
               SMIT Web Class
             </span>
             <span className="text-[10px] font-bold text-primary-600 tracking-wider uppercase block">
@@ -121,113 +133,105 @@ export const LoginPage: React.FC = () => {
 
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-primary-600 transition bg-white/80 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-xs"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-primary-600 transition bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Website
+          <span>Back to Home</span>
         </Link>
       </header>
 
       {/* Main Login Card */}
-      <main className="w-full max-w-5xl mx-auto my-auto z-10">
-        <div className="bg-white rounded-3xl sm:rounded-4xl shadow-xl shadow-slate-200/60 border border-slate-200/90 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[590px]">
-          {/* Left Side: Modern Platform Features & Cohort Info */}
-          <div className="lg:col-span-5 bg-gradient-to-br from-blue-50/80 via-slate-50 to-purple-50/70 p-8 sm:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-100 relative overflow-hidden">
-            {/* Top Badge & Header */}
+      <main className="w-full max-w-4xl mx-auto my-auto z-10">
+        <div className="bg-white rounded-3xl sm:rounded-4xl shadow-xl shadow-slate-200/60 border border-slate-200/90 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+          {/* Left Side: Features & Value Proposition */}
+          <div className="lg:col-span-5 bg-gradient-to-br from-blue-50/90 via-slate-50 to-purple-50/80 p-6 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-100">
             <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-primary-200/60 text-primary-700 shadow-xs mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-primary-200/60 text-primary-700 shadow-2xs mb-4">
                 <Sparkles className="w-3.5 h-3.5 text-secondary-600" />
-                <span className="text-[11px] font-bold tracking-wide uppercase">
-                  Class Access
+                <span className="text-[10px] font-bold tracking-wide uppercase">
+                  Classroom Access
                 </span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight leading-snug">
-                One Class. One Teacher. Real Progress.
+              <h2 className="text-2xl font-extrabold text-navy-950 tracking-tight leading-snug">
+                One Class. One Portal. Continuous Momentum.
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-3 leading-relaxed">
-                Log into your personal learning workspace to stream video lessons, track Monday & Tuesday attendance (4:00 PM – 6:00 PM), and build production projects.
+              <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                Log into your personalized learning portal to track attendance, stream recorded lessons, and submit code assignments.
               </p>
             </div>
 
-            {/* Middle Feature Highlights List with Line */}
-            <div className="my-8 space-y-3.5 relative">
-              <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-gradient-to-b from-primary-300 via-secondary-300 to-transparent" />
-
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="w-8 h-8 rounded-xl bg-white text-primary-600 flex items-center justify-center border border-primary-100 shadow-xs">
+            {/* Feature Points */}
+            <div className="my-6 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-white text-primary-600 flex items-center justify-center border border-primary-100 shadow-2xs shrink-0">
                   <Layers className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-navy-900">Structured Syllabus</h4>
-                  <p className="text-[11px] text-slate-500">Folder-style lessons & code exercises</p>
+                  <h4 className="text-xs font-bold text-navy-900">Modular Topics</h4>
+                  <p className="text-[11px] text-slate-500">HTML5 to full-stack PostgreSQL</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="w-8 h-8 rounded-xl bg-white text-secondary-600 flex items-center justify-center border border-secondary-100 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-white text-secondary-600 flex items-center justify-center border border-purple-100 shadow-2xs shrink-0">
                   <Video className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-navy-900">HD Video Lectures</h4>
-                  <p className="text-[11px] text-slate-500">Recorded and uploaded by your instructor</p>
+                  <h4 className="text-xs font-bold text-navy-900">Recorded Lessons</h4>
+                  <p className="text-[11px] text-slate-500">Review video lectures anytime</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="w-8 h-8 rounded-xl bg-white text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-white text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-2xs shrink-0">
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-navy-900">Monday & Tuesday Sessions</h4>
-                  <p className="text-[11px] text-slate-500">4:00 PM – 6:00 PM Live verified attendance</p>
+                  <h4 className="text-xs font-bold text-navy-900">Attendance Verification</h4>
+                  <p className="text-[11px] text-slate-500">Mon & Thu 4:00 PM – 6:00 PM</p>
                 </div>
               </div>
             </div>
 
-            {/* Bottom Support Badge */}
-            <div className="p-3.5 bg-white/90 backdrop-blur-md rounded-2xl border border-white shadow-xs flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div className="text-[11px]">
-                <p className="font-bold text-navy-900">Secure Database Connection</p>
-                <p className="text-slate-500">Protected JWT token and encrypted sessions</p>
-              </div>
+            {/* Trust Footer */}
+            <div className="pt-3 border-t border-slate-200/60 flex items-center gap-2 text-[11px] font-semibold text-slate-500">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>JWT & Role-Protected Endpoints</span>
             </div>
           </div>
 
-          {/* Right Side: Enhanced Sign In Form */}
-          <div className="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-center">
-            <div className="max-w-md w-full mx-auto space-y-6">
+          {/* Right Side: Sign In Form */}
+          <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center">
+            <div className="max-w-md w-full mx-auto space-y-5">
               {/* Form Title & Role Selector */}
               <div>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
+                <h3 className="text-2xl font-black text-navy-950 tracking-tight">
                   Sign In to SMIT Class
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 font-medium">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Select your role to access your dedicated learning portal.
                 </p>
 
                 {/* Role Switcher Tabs */}
-                <div className="mt-5 p-1 bg-slate-100 rounded-2xl flex items-center gap-1 border border-slate-200/80">
+                <div className="mt-4 p-1 bg-slate-100 rounded-2xl flex items-center gap-1 border border-slate-200/80">
                   <button
                     type="button"
                     onClick={() => handleRoleSwitch('student')}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                       selectedRole === 'student'
                         ? 'bg-white text-primary-700 shadow-xs'
                         : 'text-slate-600 hover:text-navy-900'
                     }`}
                   >
                     <User className="w-3.5 h-3.5" />
-                    Student Sign In
+                    Student Login
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleRoleSwitch('teacher')}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                       selectedRole === 'teacher'
                         ? 'bg-white text-secondary-700 shadow-xs'
                         : 'text-slate-600 hover:text-navy-900'
@@ -239,10 +243,30 @@ export const LoginPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Quick 1-Click Demo Fill for easy testing on Mobile & PC */}
+              <div className="flex items-center gap-2 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                <KeyRound className="w-3.5 h-3.5 text-primary-600 shrink-0" />
+                <span className="font-semibold">Quick Demo Fill:</span>
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill('student')}
+                  className="font-bold text-primary-700 hover:underline bg-white px-2 py-0.5 rounded border border-primary-200 shadow-2xs"
+                >
+                  Student
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill('teacher')}
+                  className="font-bold text-secondary-700 hover:underline bg-white px-2 py-0.5 rounded border border-purple-200 shadow-2xs"
+                >
+                  Teacher
+                </button>
+              </div>
+
               {/* Form Inputs */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-navy-800 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-1">
                     {selectedRole === 'teacher' ? 'Teacher Username / Admin ID' : 'Username, Roll Number, or Email'}
                   </label>
                   <div className="relative">
@@ -256,7 +280,7 @@ export const LoginPage: React.FC = () => {
                       }
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
-                      className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition ${
+                      className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition ${
                         fieldErrors.identifier ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
                       }`}
                       autoFocus
@@ -270,13 +294,13 @@ export const LoginPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-navy-800 uppercase tracking-wider">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider">
                       Password
                     </label>
                     <Link
                       to="/forgot-password"
-                      className="text-xs font-semibold text-primary-600 hover:text-primary-700 transition underline-offset-2 hover:underline"
+                      className="text-xs font-bold text-primary-600 hover:text-primary-700 transition hover:underline"
                     >
                       Forgot Password?
                     </Link>
@@ -289,14 +313,14 @@ export const LoginPage: React.FC = () => {
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className={`w-full pl-10 pr-11 py-2.5 bg-slate-50 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition ${
+                      className={`w-full pl-10 pr-11 py-2.5 bg-slate-50 border rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition ${
                         fieldErrors.password ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
                       title={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -309,16 +333,16 @@ export const LoginPage: React.FC = () => {
                   )}
                 </div>
 
-                {/* Teacher First-Time Setup Prompt - HIDDEN IF ALREADY CONFIGURED (ONLY 1 ACCOUNT PERMITTED) */}
+                {/* Teacher First-Time Setup Prompt */}
                 {selectedRole === 'teacher' && !isTeacherSetupCompleted && (
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-purple-50/80 border border-purple-200/80 flex items-center justify-between text-xs">
+                  <div className="p-3 rounded-2xl bg-purple-50/80 border border-purple-200/80 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2 text-secondary-900 font-medium">
                       <Sparkles className="w-4 h-4 text-secondary-600 shrink-0" />
                       <span>First time opening the portal?</span>
                     </div>
                     <Link
                       to="/teacher/setup"
-                      className="text-secondary-700 font-bold hover:text-secondary-900 underline underline-offset-2 ml-2 shrink-0"
+                      className="text-secondary-700 font-bold hover:text-secondary-900 underline ml-2 shrink-0"
                     >
                       Set Up Credentials →
                     </Link>
@@ -340,11 +364,11 @@ export const LoginPage: React.FC = () => {
               </form>
 
               {/* Bottom Registration Link */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-center text-xs text-slate-600">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-center text-xs text-slate-600">
                 <span>Not registered in our class yet?</span>
                 <Link
                   to="/signup"
-                  className="font-bold text-primary-600 hover:text-primary-700 transition ml-1.5 underline underline-offset-2"
+                  className="font-bold text-primary-600 hover:text-primary-700 transition ml-1.5 underline"
                 >
                   Create Student Account →
                 </Link>
@@ -355,7 +379,7 @@ export const LoginPage: React.FC = () => {
       </main>
 
       {/* Footer text */}
-      <footer className="text-center text-xs text-slate-400 py-3">
+      <footer className="text-center text-xs text-slate-400 py-2">
         © 2026 SMIT Web Class. Light Theme • Secure Learning Platform
       </footer>
     </div>
