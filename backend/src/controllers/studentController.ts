@@ -13,6 +13,10 @@ export class StudentController {
         return;
       }
 
+      try {
+        await db.ensureSynced();
+      } catch (e) {}
+
       const students = db.users
         .filter(u => u.role === 'student')
         .map(u => {

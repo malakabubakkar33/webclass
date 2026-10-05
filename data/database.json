@@ -5,13 +5,43 @@
       "role": "teacher",
       "username": "teacher",
       "email": "teacher@webcraft.edu",
-      "password_hash": "/U5DXu.0mmvGiD7GCgFrtjyVh8eG4mZDlpMhnG",
+      "password_hash": "$2a$10$ax966UUArJf24g2/U5DXu.0mmvGiD7GCgFrtjyVh8eG4mZDlpMhnG",
       "is_active": true,
-      "created_at": "2026-01-10T08:00:00.000Z",
-      "updated_at": "2026-10-03T12:37:04.154Z"
+      "is_dropped": false,
+      "dropped_reason": "",
+      "created_at": "2026-10-03T11:39:01.844909+00:00",
+      "updated_at": "2026-10-03T11:39:01.844909+00:00"
+    },
+    {
+      "id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "role": "student",
+      "username": "malikabubakkar11",
+      "email": "malik@gmail.com",
+      "password_hash": "$2a$10$ZFxnwhg.EdHZgzj83gU0TOMQmFoLCx/OiGWm9pm5HC7Wjsp.xTBoK",
+      "is_active": true,
+      "is_dropped": false,
+      "dropped_reason": "",
+      "created_at": "2026-10-04T17:44:43.228+00:00",
+      "updated_at": "2026-10-04T17:44:43.228+00:00"
     }
   ],
-  "student_profiles": [],
+  "student_profiles": [
+    {
+      "id": "f0650e49-64a0-4c99-9293-a07049d9db50",
+      "user_id": "5b6463a1-9382-4995-957b-4bf38d1c120f",
+      "full_name": "Malik Abubakkar",
+      "username": "malikabubakkar11",
+      "email": "malik@gmail.com",
+      "mobile_number": "+923258740212",
+      "roll_number": "00000",
+      "avatar_url": "https://vejdcilgwgiscaspbfho.supabase.co/storage/v1/object/public/avatars/avatar-e09ce3fe-9207-44e9-916d-bf2f01b0ca5f.jpg",
+      "show_on_public_directory": true,
+      "is_dropped": false,
+      "dropped_reason": "",
+      "created_at": "2026-10-04T17:44:43.228+00:00",
+      "updated_at": "2026-10-04T17:44:43.228+00:00"
+    }
+  ],
   "teacher_profiles": [
     {
       "id": "c59f07b1-1234-4567-89ab-cdef01234567",
@@ -21,9 +51,9 @@
       "email": "teacher@webcraft.edu",
       "mobile_number": "+92 300 1234567",
       "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256",
-      "bio": "Lead Full-Stack Web Development Architect & Classroom Instructor with 12+ years of production experience.",
-      "created_at": "2026-01-10T08:00:00.000Z",
-      "updated_at": "2026-10-03T12:37:04.154Z"
+      "bio": "Lead Full-Stack Web Development Architect & Classroom Instructor with 12+ years experience.",
+      "created_at": "2026-10-03T11:39:01.844909+00:00",
+      "updated_at": "2026-10-03T11:39:01.844909+00:00"
     }
   ],
   "courses": [],

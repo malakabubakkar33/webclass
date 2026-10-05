@@ -9,25 +9,43 @@ export class PublicController {
    */
   public static async getStats(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      let totalStudents = db.users.filter(u => u.role === 'student' && u.is_active).length;
+      try {
+        await db.ensureSynced();
+      } catch (e) {
+        // Non-blocking
+      }
+
+      // 1. Local student count
+      const localActiveStudents = db.users.filter(u => u.role === 'student' && u.is_active);
+      const activeStudentIds = new Set(localActiveStudents.map(u => u.id));
+      let totalStudents = localActiveStudents.length;
+
       let totalCourses = db.courses.filter(c => c.is_published).length;
       let totalTopics = db.topics.length;
       let totalVideos = db.videos.length;
 
+      // 2. Merge with Supabase PostgreSQL if connected
       if (SupabaseDbService.isConnected()) {
         try {
           const students = await SupabaseDbService.getAllStudents();
           const courses = await SupabaseDbService.getCourses();
           const tCount = await SupabaseDbService.getTopicsCount();
           const vCount = await SupabaseDbService.getVideosCount();
-          if (students && students.length >= 0) {
-            totalStudents = students.filter(s => s.user.is_active).length;
+
+          if (students && students.length > 0) {
+            students.forEach(s => {
+              if (s.user && s.user.is_active) {
+                activeStudentIds.add(s.user.id);
+              }
+            });
+            totalStudents = Math.max(totalStudents, activeStudentIds.size);
           }
           if (courses && courses.length > 0) {
-            totalCourses = courses.filter(c => c.is_published).length;
+            const pub = courses.filter(c => c.is_published).length;
+            totalCourses = Math.max(totalCourses, pub);
           }
-          if (tCount > 0) totalTopics = tCount;
-          if (vCount > 0) totalVideos = vCount;
+          if (tCount > 0) totalTopics = Math.max(totalTopics, tCount);
+          if (vCount > 0) totalVideos = Math.max(totalVideos, vCount);
         } catch (supaErr) {
           console.warn('[PublicController] Supabase stats query warning:', supaErr);
         }
@@ -200,54 +218,71 @@ export class PublicController {
    */
   public static async getStudents(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      try {
+        await db.ensureSynced();
+      } catch (e) {
+        // Non-blocking
+      }
+
+      const studentMap = new Map<string, {
+        id: string;
+        fullName: string;
+        username: string;
+        rollNumber: string;
+        avatarUrl: string;
+        joinedDate: string;
+      }>();
+
+      // 1. Gather active students from local database
+      const activeStudentUsers = db.users.filter(u => u.role === 'student' && u.is_active);
+      const activeIds = new Set(activeStudentUsers.map(u => u.id));
+
+      db.student_profiles
+        .filter(p => activeIds.has(p.user_id) && p.show_on_public_directory !== false)
+        .forEach(p => {
+          const user = activeStudentUsers.find(u => u.id === p.user_id);
+          const key = (p.user_id || p.id).toLowerCase();
+          studentMap.set(key, {
+            id: p.id,
+            fullName: p.full_name,
+            username: p.username,
+            rollNumber: p.roll_number || 'Enrolled',
+            avatarUrl: p.avatar_url || '',
+            joinedDate: user?.created_at || p.created_at,
+          });
+        });
+
+      // 2. Augment and merge with remote Supabase PostgreSQL
       if (SupabaseDbService.isConnected()) {
         try {
           const supabaseStudents = await SupabaseDbService.getAllStudents();
           if (supabaseStudents && supabaseStudents.length > 0) {
-            const list = supabaseStudents
+            supabaseStudents
               .filter(({ user, profile }) => user.is_active && profile.show_on_public_directory !== false)
-              .map(({ user, profile }) => ({
-                id: profile.id || user.id,
-                fullName: profile.full_name || user.username,
-                username: user.username,
-                rollNumber: profile.roll_number || 'Enrolled',
-                avatarUrl: profile.avatar_url || '',
-                joinedDate: user.created_at || profile.created_at,
-              }))
-              .sort((a, b) => a.rollNumber.localeCompare(b.rollNumber));
-
-            res.json({
-              success: true,
-              data: list,
-            });
-            return;
+              .forEach(({ user, profile }) => {
+                const key = (user.id || profile.id).toLowerCase();
+                studentMap.set(key, {
+                  id: profile.id || user.id,
+                  fullName: profile.full_name || user.username,
+                  username: user.username,
+                  rollNumber: profile.roll_number || 'Enrolled',
+                  avatarUrl: profile.avatar_url || '',
+                  joinedDate: user.created_at || profile.created_at,
+                });
+              });
           }
         } catch (supaErr) {
-          console.warn('[PublicController] Supabase students fetch failed, falling back to local:', supaErr);
+          console.warn('[PublicController] Supabase students fetch failed, relying on merged local:', supaErr);
         }
       }
 
-      const activeStudentUsers = db.users.filter(u => u.role === 'student' && u.is_active);
-      const activeIds = new Set(activeStudentUsers.map(u => u.id));
-
-      const students = db.student_profiles
-        .filter(p => activeIds.has(p.user_id) && p.show_on_public_directory !== false)
-        .map(p => {
-          const user = activeStudentUsers.find(u => u.id === p.user_id);
-          return {
-            id: p.id,
-            fullName: p.full_name,
-            username: p.username,
-            rollNumber: p.roll_number,
-            avatarUrl: p.avatar_url,
-            joinedDate: user?.created_at || p.created_at,
-          };
-        })
-        .sort((a, b) => a.rollNumber.localeCompare(b.rollNumber));
+      const list = Array.from(studentMap.values()).sort((a, b) => {
+        return (a.rollNumber || '').localeCompare(b.rollNumber || '');
+      });
 
       res.json({
         success: true,
-        data: students,
+        data: list,
       });
     } catch (err: any) {
       res.status(500).json({ success: false, message: 'Failed to fetch students directory' });

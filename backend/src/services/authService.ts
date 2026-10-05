@@ -288,7 +288,7 @@ export class AuthService {
     // Always keep in-memory / local sync
     db.users.push(newUser);
     db.student_profiles.push(newProfile);
-    db.save();
+    db.save(true);
 
     // Send welcome notification
     await NotificationService.createNotification(

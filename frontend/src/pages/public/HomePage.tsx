@@ -76,6 +76,9 @@ export const HomePage: React.FC = () => {
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [loadingTeacher, setLoadingTeacher] = useState(true);
 
+  // Guarantee student count is always strictly accurate and includes all joined students
+  const enrolledStudentsCount = Math.max(stats?.totalStudents || 0, students?.length || 0);
+
   const handleOpenCourse = (courseId: string) => {
     if (isAuthenticated) {
       if (isTeacher) {
@@ -240,11 +243,11 @@ export const HomePage: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Students Enrolled</p>
-                {loadingStats ? (
+                {loadingStats && loadingStudents ? (
                   <Skeleton className="h-8 w-16 mt-1" />
                 ) : (
                   <p className="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-0.5">
-                    <AnimatedCounter value={stats?.totalStudents ?? 0} duration={1.4} />
+                    <AnimatedCounter value={enrolledStudentsCount} duration={1.4} />
                   </p>
                 )}
               </div>
@@ -523,8 +526,14 @@ export const HomePage: React.FC = () => {
       <section className="py-14 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3">
-              Class Cohort
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+                Class Cohort
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-primary-700 text-xs font-bold uppercase tracking-wider">
+                <Users className="w-3.5 h-3.5 text-primary-600" />
+                <span>{enrolledStudentsCount} {enrolledStudentsCount === 1 ? 'Student Joined' : 'Students Joined'}</span>
+              </div>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-navy-900 tracking-tight">
               Growing Together
@@ -586,8 +595,9 @@ export const HomePage: React.FC = () => {
                           (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`;
                         }}
                       />
-                      <div className="absolute top-3 left-3 bg-navy-900/80 backdrop-blur-xs text-white px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                        Peer {String(idx + 1).padStart(2, '0')}
+                      <div className="absolute top-3 left-3 bg-navy-900/85 backdrop-blur-xs text-white px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span>Joined Student #{String(idx + 1).padStart(2, '0')}</span>
                       </div>
                       <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-700 shadow-xs flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

@@ -42,7 +42,11 @@ export const apiClient = axios.create({
 // In-flight deduplication and short TTL cache for static public endpoints
 const requestCache = new Map<string, { time: number; promise: Promise<any> }>();
 
-const cachedGet = (url: string, ttlMs = 15000) => {
+export const clearPublicCache = () => {
+  requestCache.clear();
+};
+
+const cachedGet = (url: string, ttlMs = 3000) => {
   const cached = requestCache.get(url);
   const now = Date.now();
   if (cached && now - cached.time < ttlMs) {
@@ -87,8 +91,16 @@ apiClient.interceptors.response.use(
 
 export const api = {
   // Auth
-  login: (data: { identifier: string; password: string }) => apiClient.post('/auth/login', data),
-  signup: (data: any) => apiClient.post('/auth/signup', data),
+  login: (data: { identifier: string; password: string }) => {
+    clearPublicCache();
+    return apiClient.post('/auth/login', data);
+  },
+  signup: async (data: any) => {
+    clearPublicCache();
+    const res = await apiClient.post('/auth/signup', data);
+    clearPublicCache();
+    return res;
+  },
   getTeacherSetupStatus: () => apiClient.get('/auth/teacher-setup-status'),
   setupTeacher: (data: { fullName: string; username: string; avatarUrl?: string; password: string; confirmPassword?: string }) =>
     apiClient.post('/auth/teacher-setup', data),
@@ -149,10 +161,30 @@ export const api = {
   // Students (Teacher)
   getStudents: () => apiClient.get('/students'),
   getStudentById: (id: string) => apiClient.get(`/students/${id}`),
-  createStudent: (data: any) => apiClient.post('/students', data),
-  toggleStudentStatus: (id: string) => apiClient.patch(`/students/${id}/toggle-status`),
-  toggleStudentVisibility: (id: string) => apiClient.patch(`/students/${id}/toggle-visibility`),
-  dropStudent: (id: string, reason?: string) => apiClient.post(`/students/${id}/drop`, { reason }),
+  createStudent: async (data: any) => {
+    clearPublicCache();
+    const res = await apiClient.post('/students', data);
+    clearPublicCache();
+    return res;
+  },
+  toggleStudentStatus: async (id: string) => {
+    clearPublicCache();
+    const res = await apiClient.patch(`/students/${id}/toggle-status`);
+    clearPublicCache();
+    return res;
+  },
+  toggleStudentVisibility: async (id: string) => {
+    clearPublicCache();
+    const res = await apiClient.patch(`/students/${id}/toggle-visibility`);
+    clearPublicCache();
+    return res;
+  },
+  dropStudent: async (id: string, reason?: string) => {
+    clearPublicCache();
+    const res = await apiClient.post(`/students/${id}/drop`, { reason });
+    clearPublicCache();
+    return res;
+  },
   sendAttendanceWarning: (id: string, percent?: number) => apiClient.post(`/students/${id}/send-warning`, { percent }),
   updateStudent: (id: string, data: any) => apiClient.put(`/students/${id}`, data),
 

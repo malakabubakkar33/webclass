@@ -54,10 +54,14 @@ export const AboutPage: React.FC = () => {
     Promise.all([
       api.getPublicTeacher().then((res) => res.data?.data),
       api.getPublicStats().then((res) => res.data?.data),
+      api.getPublicStudents().then((res) => res.data?.data || []),
     ])
-      .then(([teacherData, statsData]) => {
+      .then(([teacherData, statsData, studentsData]) => {
         if (teacherData) setTeacher(teacherData);
-        if (statsData) setStats(statsData);
+        if (statsData) {
+          statsData.totalStudents = Math.max(statsData.totalStudents || 0, Array.isArray(studentsData) ? studentsData.length : 0);
+          setStats(statsData);
+        }
       })
       .catch((err) => console.error('Failed to load about data:', err))
       .finally(() => setLoading(false));
@@ -253,9 +257,17 @@ export const AboutPage: React.FC = () => {
                   Class Schedule & Routine
                 </h2>
               </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-primary-700 bg-primary-50 px-4 py-2 rounded-xl border border-primary-200/60 shadow-xs">
-                <Calendar className="w-4 h-4 text-primary-600" />
-                <span>{stats?.classDays || 'Monday & Thursday'}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-primary-700 bg-primary-50 px-4 py-2 rounded-xl border border-primary-200/60 shadow-xs">
+                  <Calendar className="w-4 h-4 text-primary-600" />
+                  <span>{stats?.classDays || 'Monday & Thursday'}</span>
+                </div>
+                {stats?.totalStudents ? (
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200/60 shadow-xs">
+                    <Users className="w-4 h-4 text-emerald-600" />
+                    <span>{stats.totalStudents} {stats.totalStudents === 1 ? 'Student Joined' : 'Students Joined'}</span>
+                  </div>
+                ) : null}
               </div>
             </div>
 

@@ -179,9 +179,17 @@ export const StudentsPage: React.FC = () => {
         <div className="space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-5">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
-                Meet Our Students
-              </h2>
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
+                  Meet Our Students
+                </h2>
+                {!loadingStudents && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-50 border border-primary-200/80 text-primary-700 text-xs font-bold shadow-2xs">
+                    <Users className="w-3.5 h-3.5 text-primary-600" />
+                    {students.length} {students.length === 1 ? 'Joined Student' : 'Joined Students'}
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-slate-500 mt-1">
                 Active students registered in our SMIT Web Development cohort.
               </p>
@@ -246,7 +254,7 @@ export const StudentsPage: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 sm:gap-6">
-              {filteredStudents.map((student) => (
+              {filteredStudents.map((student, idx) => (
                 <motion.div
                   key={student.id}
                   initial={{ opacity: 0, scale: 0.96 }}
@@ -267,6 +275,9 @@ export const StudentsPage: React.FC = () => {
                           (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.fullName)}`;
                         }}
                       />
+                      <div className="absolute top-2 left-2 bg-navy-900/85 backdrop-blur-xs text-white px-2 py-0.5 rounded-md text-[10px] font-bold shadow-2xs">
+                        #{String(idx + 1).padStart(2, '0')}
+                      </div>
                       <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-700 shadow-2xs">
                         Active
                       </div>

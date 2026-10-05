@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { db } from '../config/database.js';
 import { AuthenticatedRequest } from '../middlewares/authMiddleware.js';
+import { SupabaseDbService } from '../services/supabaseDbService.js';
 
 export class TeacherController {
   /**
@@ -117,8 +118,25 @@ export class TeacherController {
         return;
       }
 
+      try {
+        await db.ensureSynced();
+      } catch (e) {
+        // Non-blocking
+      }
+
       const activeStudents = db.users.filter((u) => u.role === 'student' && u.is_active);
-      const totalStudents = activeStudents.length;
+      const activeStudentIds = new Set(activeStudents.map(u => u.id));
+
+      if (SupabaseDbService.isConnected()) {
+        try {
+          const supaStudents = await SupabaseDbService.getAllStudents();
+          supaStudents.forEach(s => {
+            if (s.user && s.user.is_active) activeStudentIds.add(s.user.id);
+          });
+        } catch (e) {}
+      }
+
+      const totalStudents = Math.max(activeStudents.length, activeStudentIds.size);
       const totalCourses = db.courses.length;
       const totalTopics = db.topics.length;
       const totalVideos = db.videos.length;
@@ -316,8 +334,23 @@ export class TeacherController {
         return;
       }
 
+      try {
+        await db.ensureSynced();
+      } catch (e) {}
+
       const activeStudents = db.users.filter((u) => u.role === 'student' && u.is_active);
-      const totalStudents = activeStudents.length;
+      const activeStudentIds = new Set(activeStudents.map(u => u.id));
+
+      if (SupabaseDbService.isConnected()) {
+        try {
+          const supaStudents = await SupabaseDbService.getAllStudents();
+          supaStudents.forEach(s => {
+            if (s.user && s.user.is_active) activeStudentIds.add(s.user.id);
+          });
+        } catch (e) {}
+      }
+
+      const totalStudents = Math.max(activeStudents.length, activeStudentIds.size);
 
       // Group attendance by date
       const attendanceByDateMap = new Map<string, { present: number; absent: number }>();

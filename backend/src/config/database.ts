@@ -217,7 +217,7 @@ class DatabaseStore {
     const supabase = (await import('./supabase.js')).getSupabase();
     if (!supabase) return;
     try {
-      const [uRes, spRes, tpRes, cRes, topRes, vRes, attRes, asRes, subRes, vpRes] = await Promise.all([
+      const results = await Promise.allSettled([
         supabase.from('users').select('*'),
         supabase.from('student_profiles').select('*'),
         supabase.from('teacher_profiles').select('*'),
@@ -230,16 +230,32 @@ class DatabaseStore {
         supabase.from('video_progress').select('*'),
       ]);
 
+      const [uRes, spRes, tpRes, cRes, topRes, vRes, attRes, asRes, subRes, vpRes] = results.map(r =>
+        r.status === 'fulfilled' ? r.value : { data: null, error: r.reason }
+      );
+
       if (uRes.data && uRes.data.length > 0) {
         const remoteUsers = uRes.data as User[];
         const localTeacher = this.data.users.find(u => u.role === 'teacher');
         if (localTeacher && !remoteUsers.some(u => u.id === localTeacher.id || u.role === 'teacher')) {
           remoteUsers.push(localTeacher);
         }
+        // Preserve any locally added users not in remote yet
+        for (const localUser of this.data.users) {
+          if (!remoteUsers.some(u => u.id === localUser.id || (u.username && u.username.toLowerCase() === localUser.username.toLowerCase()))) {
+            remoteUsers.push(localUser);
+          }
+        }
         this.data.users = remoteUsers;
       }
-      if (spRes.data) {
-        this.data.student_profiles = spRes.data as StudentProfile[];
+      if (spRes.data && spRes.data.length > 0) {
+        const remoteProfiles = spRes.data as StudentProfile[];
+        for (const localProfile of this.data.student_profiles) {
+          if (!remoteProfiles.some(p => p.id === localProfile.id || p.user_id === localProfile.user_id)) {
+            remoteProfiles.push(localProfile);
+          }
+        }
+        this.data.student_profiles = remoteProfiles;
       }
       if (tpRes.data && tpRes.data.length > 0) {
         this.data.teacher_profiles = tpRes.data as TeacherProfile[];
@@ -253,19 +269,22 @@ class DatabaseStore {
       if (vRes.data && vRes.data.length > 0) {
         this.data.videos = vRes.data as Video[];
       }
-      if (attRes.data) {
+      if (attRes.data && attRes.data.length > 0) {
         this.data.attendance = attRes.data as Attendance[];
       }
-      if (asRes.data) {
+      if (asRes.data && asRes.data.length > 0) {
         this.data.assignments = asRes.data as Assignment[];
       }
-      if (subRes.data) {
+      if (subRes.data && subRes.data.length > 0) {
         this.data.assignment_submissions = subRes.data as AssignmentSubmission[];
       }
-      if (vpRes.data) {
+      if (vpRes.data && vpRes.data.length > 0) {
         this.data.video_progress = vpRes.data as VideoProgress[];
       }
+
       this.lastSyncTime = Date.now();
+      // Persist freshly synced data to disk so database.json stays consistent
+      this.doSave(true);
       console.log(`[DatabaseStore] Synced with Supabase: ${this.data.users.length} users, ${this.data.student_profiles.length} student profiles, ${this.data.courses.length} courses.`);
     } catch (err: any) {
       console.warn('[DatabaseStore] Supabase sync warning:', err?.message || err);
@@ -275,29 +294,42 @@ class DatabaseStore {
   private saveTimeout: NodeJS.Timeout | null = null;
 
   public save(immediate = false) {
-    if (immediate) {
+    if (immediate || isVercel) {
       if (this.saveTimeout) {
         clearTimeout(this.saveTimeout);
         this.saveTimeout = null;
       }
-      this.doSave();
+      this.doSave(true);
       return;
     }
     if (this.saveTimeout) return;
     this.saveTimeout = setTimeout(() => {
       this.saveTimeout = null;
-      this.doSave();
+      this.doSave(false);
     }, 60);
   }
 
-  private doSave() {
+  private doSave(sync = false) {
     try {
       if (!fs.existsSync(DATA_DIR)) {
         fs.mkdirSync(DATA_DIR, { recursive: true });
       }
-      fs.writeFile(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8', (err) => {
-        if (err) console.error('[Database] Error saving to database.json:', err);
-      });
+      const serialized = JSON.stringify(this.data, null, 2);
+      if (sync || isVercel) {
+        fs.writeFileSync(DB_FILE, serialized, 'utf-8');
+      } else {
+        fs.writeFile(DB_FILE, serialized, 'utf-8', (err) => {
+          if (err) console.error('[Database] Error saving to database.json:', err);
+        });
+      }
+
+      // Also mirror to root data/database.json if present
+      const rootDb = path.resolve(process.cwd(), 'data', 'database.json');
+      if (rootDb !== DB_FILE && fs.existsSync(path.dirname(rootDb))) {
+        try {
+          fs.writeFileSync(rootDb, serialized, 'utf-8');
+        } catch (_) {}
+      }
     } catch (err) {
       console.error('[Database] Error saving to database.json:', err);
     }
